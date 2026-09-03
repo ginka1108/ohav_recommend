@@ -28,11 +28,19 @@ header{
 }
 header h1{margin:0; font-size:16px; font-weight:900; letter-spacing:.03em}
 main{max-width:1180px; margin:0 auto; padding:16px 14px 90px}
+main > section, main > .stage{margin-bottom:20px}
+/* スマホ（1カラム）では、プレビューのすぐ下に位置・大きさを置いて
+   結果を見ながら調整できるようにする。画面に収まるよう高さも抑える。 */
+.canvas-wrap{max-width:min(100%, 54vh); margin:0 auto}
 @media(min-width:940px){
   main{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,470px); gap:26px; align-items:start}
-  .stage{position:sticky; top:78px}
+  .s-mode{grid-column:1; grid-row:1}
+  .s-upload{grid-column:1; grid-row:2}
+  .s-adjust{grid-column:1; grid-row:3}
+  .s-text{grid-column:1; grid-row:4}
+  .stage{grid-column:2; grid-row:1 / 5; position:sticky; top:78px}
+  .canvas-wrap{max-width:100%}
 }
-section{margin-bottom:20px}
 .label{font-size:12px; font-weight:800; letter-spacing:.06em; color:var(--dim); margin:0 0 9px}
 
 /* ---- モードタブ ---- */
@@ -68,8 +76,8 @@ section{margin-bottom:20px}
 .mini:hover{border-color:#c9d0da}
 
 /* ---- 立ち絵の調整 ---- */
-.adj{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:14px}
-.adj .row{display:flex; align-items:center; gap:12px; margin-bottom:11px}
+.adj{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:12px 14px}
+.adj .row{display:flex; align-items:center; gap:12px; margin-bottom:9px}
 .adj .row span{font-size:12.5px; font-weight:700; color:var(--dim); width:46px; flex:0 0 auto}
 .adj .row input[type=range]{flex:1; min-width:0; -webkit-appearance:none; appearance:none; height:22px; background:transparent}
 .adj .row input[type=range]::-webkit-slider-runnable-track{height:6px; border-radius:3px; background:#e6eaf0}
@@ -83,6 +91,10 @@ section{margin-bottom:20px}
 /* ---- フォーム ---- */
 .field{margin-bottom:13px}
 .field label{display:block; font-size:12.5px; font-weight:700; color:var(--dim); margin-bottom:5px}
+.field .toggle{display:flex; align-items:center; gap:10px; cursor:pointer; margin:0;
+  background:var(--card); border:1px solid var(--line); border-radius:10px; padding:11px 13px;
+  font-size:14px; font-weight:700; color:var(--fg)}
+.field .toggle input{width:19px; height:19px; margin:0; accent-color:var(--accent); cursor:pointer}
 input[type=text],textarea{
   width:100%; background:var(--card); border:1px solid var(--line); color:var(--fg);
   border-radius:10px; padding:11px 13px; font-size:15px; font-family:inherit; line-height:1.5;
@@ -134,38 +146,20 @@ button.act:disabled{opacity:.4; cursor:not-allowed}
 </header>
 
 <main>
-  <div class="panel">
-    <section>
-      <p class="label">モード</p>
-      <div class="tabs" id="tabs" role="tablist"></div>
-    </section>
+  <section class="s-mode">
+    <p class="label">モード</p>
+    <div class="tabs" id="tabs" role="tablist"></div>
+  </section>
 
-    <section>
-      <p class="label">立ち絵</p>
-      <div class="drop" id="drop">
-        <input type="file" id="file" accept="image/*">
-        <div class="ph">タップして画像を選択</div>
-      </div>
-    </section>
-
-    <section>
-      <p class="label">位置・大きさ</p>
-      <div class="adj" id="adjust">
-        <div class="row"><span>大きさ</span><input type="range" id="adjScale" min="40" max="400" step="1" value="100"><b id="adjScaleV">100%</b></div>
-        <div class="row"><span>左右</span><input type="range" id="adjX" min="-120" max="120" step="1" value="0"><b id="adjXV">0</b></div>
-        <div class="row"><span>上下</span><input type="range" id="adjY" min="-200" max="200" step="1" value="0"><b id="adjYV">0</b></div>
-        <div class="foot"><button class="mini" type="button" id="adjReset">リセット</button></div>
-      </div>
-    </section>
-
-    <section>
-      <p class="label">テキスト</p>
-      <div id="fields"></div>
-    </section>
-  </div>
+  <section class="s-upload">
+    <p class="label">立ち絵</p>
+    <div class="drop" id="drop">
+      <input type="file" id="file" accept="image/*">
+      <div class="ph">タップして画像を選択</div>
+    </div>
+  </section>
 
   <div class="stage">
-    <p class="label">プレビュー</p>
     <div class="canvas-wrap">
       <canvas id="preview" width="1350" height="1350"></canvas>
       <div class="empty" id="empty">立ち絵をアップロード</div>
@@ -176,6 +170,21 @@ button.act:disabled{opacity:.4; cursor:not-allowed}
       <button class="act share" id="btnShare" disabled>Xに投稿</button>
     </div>
   </div>
+
+  <section class="s-adjust">
+    <p class="label">位置・大きさ</p>
+    <div class="adj" id="adjust">
+      <div class="row"><span>大きさ</span><input type="range" id="adjScale" min="40" max="400" step="1" value="100"><b id="adjScaleV">100%</b></div>
+      <div class="row"><span>左右</span><input type="range" id="adjX" min="-120" max="120" step="1" value="0"><b id="adjXV">0</b></div>
+      <div class="row"><span>上下</span><input type="range" id="adjY" min="-200" max="200" step="1" value="0"><b id="adjYV">0</b></div>
+      <div class="foot"><button class="mini" type="button" id="adjReset">リセット</button></div>
+    </div>
+  </section>
+
+  <section class="s-text">
+    <p class="label">テキスト</p>
+    <div id="fields"></div>
+  </section>
 </main>
 
 <div class="toast" id="toast"></div>
@@ -192,7 +201,6 @@ button.act:disabled{opacity:.4; cursor:not-allowed}
  * ====================================================================== */
 
 const OUT = 1350;               // 出力解像度（正方形）
-const FILTER_RES = 900;         // 重いシェーダを走らせる解像度（結果は拡大して合成）
 
 /* =========================================================================
  * [1] 共通ユーティリティ
@@ -423,6 +431,7 @@ const GLX = (() => {
       const loc = gl.getUniformLocation(p, k);
       if (loc === null) continue;
       const v = u[k];
+      if (v === undefined || v === null) continue;
       if (v && v.tex !== undefined && v.fb === undefined && typeof v.tex !== 'number') {
         gl.activeTexture(gl.TEXTURE0 + unit);
         gl.bindTexture(gl.TEXTURE_2D, v.tex);
@@ -776,8 +785,8 @@ function glRun(w, h, build) {
  * ------------------------------------------------------------------- */
 function fxWatercolor(src, opt) {
   opt = opt || {};
-  const RES = opt.res || 760;
-  return glRun(RES, RES, (gl, trash) => {
+  const RW = opt.w || opt.res || 760, RH = opt.h || opt.res || 760;
+  return glRun(RW, RH, (gl, trash) => {
     const pTensor = GLX.program('tensor', VS_FULL, FS_TENSOR);
     const pBlur = GLX.program('blur', VS_FULL, FS_BLUR);
     const pAkf = GLX.program('akf', VS_FULL, FS_AKF);
@@ -786,8 +795,8 @@ function fxWatercolor(src, opt) {
     const pPaper = GLX.program('paper', VS_FULL, FS_PAPER);
 
     const tex = GLX.texture(src); trash.push(tex);
-    const A = GLX.fbo(RES, RES), B = GLX.fbo(RES, RES), C = GLX.fbo(RES, RES),
-          D = GLX.fbo(RES, RES), E = GLX.fbo(RES, RES), F = GLX.fbo(RES, RES);
+    const A = GLX.fbo(RW, RH), B = GLX.fbo(RW, RH), C = GLX.fbo(RW, RH),
+          D = GLX.fbo(RW, RH), E = GLX.fbo(RW, RH), F = GLX.fbo(RW, RH);
     trash.push(A, B, C, D, E, F);
 
     // 1) 構造テンソル → 2パスぼかしで方向場を安定させる
@@ -829,15 +838,15 @@ function fxWatercolor(src, opt) {
  * ------------------------------------------------------------------- */
 function fxGekiga(src, opt) {
   opt = opt || {};
-  const RES = opt.res || 900;
-  return glRun(RES, RES, (gl, trash) => {
+  const RW = opt.w || opt.res || 900, RH = opt.h || opt.res || 900;
+  return glRun(RW, RH, (gl, trash) => {
     const pTensor = GLX.program('tensor', VS_FULL, FS_TENSOR);
     const pBlur = GLX.program('blur', VS_FULL, FS_BLUR);
     const pAkf = GLX.program('akf', VS_FULL, FS_AKF);
     const pGek = GLX.program('gekiga', VS_FULL, FS_GEKIGA);
 
     const tex = GLX.texture(src); trash.push(tex);
-    const A = GLX.fbo(RES, RES), B = GLX.fbo(RES, RES), C = GLX.fbo(RES, RES), D = GLX.fbo(RES, RES);
+    const A = GLX.fbo(RW, RH), B = GLX.fbo(RW, RH), C = GLX.fbo(RW, RH), D = GLX.fbo(RW, RH);
     trash.push(A, B, C, D);
 
     GLX.pass(pTensor, { u_tex: { tex } }, A);
@@ -1094,695 +1103,13 @@ function drawVignette(ctx, w, h, strength, color) {
 }
 
 /* =========================================================================
- * [6] モード定義
- *   各モードは { id, name, desc, heavy, fields[], render(ctx, env) } を持つ。
- *   env = { img, meta, v(入力値), W, H }
+ * [6] 擬似3Dステージ
+ *   各モードは「1枚の絵」を作り、それを日常の風景に置いた1コマとして
+ *   透視投影でレンダリングする。レイヤーの重ね合わせでは出せない
+ *   遠近・被写界深度・陰影を、この共通基盤で担当する。
  * ====================================================================== */
 
-const MODES = [];
-
-/* -------------------------------------------------------------------------
- * 6.1 雑誌風（ファッション誌カバー）
- *   加工は最小限。巨大ロゴを人物の背後に回すことで「表紙らしさ」を作る。
- * ---------------------------------------------------------------------- */
-MODES.push({
-  id: 'magazine',
-  name: '雑誌風',
-  desc: '巨大なロゴタイトルを人物の背後に回した、ファッション誌カバー風。加工は最小限でタイポグラフィが主役。',
-  heavy: false,
-  fields: [
-    { key: 'title', label: 'ロゴタイトル', type: 'text', def: 'OHAYO', placeholder: 'OHAYO' },
-    { key: 'issue', label: '号数', type: 'text', def: 'VOL.42 / MORNING ISSUE', placeholder: 'VOL.42 / MORNING ISSUE' },
-    { key: 'date', label: '日付', type: 'text', def: '2026 SEPTEMBER', placeholder: '2026 SEPTEMBER' },
-    {
-      key: 'lines', label: '特集見出し', type: 'textarea',
-      def: '今日も\n世界一かわいい\nおはよう', rows: 5,
-      placeholder: '今日も\n世界一かわいい\nおはよう'
-    },
-    { key: 'sub', label: '小コピー', type: 'text', def: 'MORNING PORTRAIT ISSUE', placeholder: 'MORNING PORTRAIT ISSUE' }
-  ],
-  render(ctx, env) {
-    const { img, meta, v } = env, W = env.W, H = env.H;
-    const [ah, as] = meta.accentHsl;
-    const baseH = ah;
-    const accent = hsl(baseH, clamp(as * 1.1, 0.55, 0.92), 0.48);
-    const deep = hsl(baseH + 6, clamp(as * 0.9, 0.35, 0.8), 0.16);
-
-    // --- 背景（立ち絵の色から起こした淡いグラデーション） ---
-    const g = ctx.createLinearGradient(0, 0, W * 0.35, H);
-    g.addColorStop(0, hsl(baseH + 12, clamp(as * 0.45, 0.10, 0.4), 0.94));
-    g.addColorStop(0.55, hsl(baseH, clamp(as * 0.55, 0.12, 0.45), 0.86));
-    g.addColorStop(1, hsl(baseH - 14, clamp(as * 0.6, 0.14, 0.5), 0.76));
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, W, H);
-
-    // --- ヘッダー（発行情報） ---
-    ctx.fillStyle = deep;
-    ctx.textBaseline = 'alphabetic';
-    ctx.font = f(600, 26, FONT.cond);
-    ctx.textAlign = 'left';
-    drawTracked(ctx, v.issue.toUpperCase(), 64, 96, 3.4, 'left');
-    ctx.textAlign = 'right';
-    drawTracked(ctx, v.date.toUpperCase(), W - 64, 96, 3.4, 'right');
-    ctx.globalAlpha = 0.5;
-    ctx.fillRect(64, 116, W - 128, 2);
-    ctx.globalAlpha = 1;
-
-    // --- 立ち絵（トーンカーブ相当の軽い調整のみ）を先に敷く ---
-    const p = place(env, { x: 110, y: 250, w: W - 220, h: H - 250 },
-      { fit: 'contain', anchorY: 1, anchorX: 0.5 });
-    ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,0.20)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 12;
-    try { ctx.filter = 'contrast(1.06) saturate(1.10) brightness(1.02)'; } catch (e) { }
-    drawSubject(ctx, img, p);
-    ctx.restore();
-    ctx.filter = 'none';
-
-    // --- 巨大ロゴ。タイポグラフィが主役なので立ち絵より前面に置く ---
-    const logo = (v.title || 'OHAYO').toUpperCase();
-    const lsize = fitSize(ctx, logo, 400, FONT.logo, W - 96, 440, 60, -0.018);
-    ctx.font = f(400, lsize, FONT.logo);
-    ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,0.30)'; ctx.shadowBlur = 34; ctx.shadowOffsetY = 8;
-    ctx.fillStyle = '#fff';
-    drawTracked(ctx, logo, W / 2, 150 + lsize * 0.76, -lsize * 0.018, 'center');
-    ctx.restore();
-
-    // --- 特集見出し（左右に振り分けて人物の上に重ねる） ---
-    const rawLines = String(v.lines || '').split('\n').map(s => s.trim()).filter(Boolean);
-    const half = Math.ceil(rawLines.length / 2);
-    const leftLines = rawLines.slice(0, half).slice(0, 3);
-    const rightLines = rawLines.slice(half).slice(0, 2);
-
-    const drawCoverLine = (text, x, y, size, align, isFirst) => {
-      ctx.save();
-      ctx.shadowColor = 'rgba(0,0,0,0.40)'; ctx.shadowBlur = 20; ctx.shadowOffsetY = 3;
-      ctx.font = f(900, size, FONT.sans);
-      ctx.fillStyle = isFirst ? accent : '#ffffff';
-      if (isFirst) { ctx.strokeStyle = '#fff'; ctx.lineWidth = size * 0.07; ctx.lineJoin = 'round'; }
-      const w = trackedWidth(ctx, text, size * 0.01);
-      if (isFirst) drawTracked(ctx, text, x, y, size * 0.01, align, 'both');
-      else drawTracked(ctx, text, x, y, size * 0.01, align);
-      ctx.restore();
-      // 見出し下の細いライン
-      ctx.save();
-      ctx.globalAlpha = 0.85;
-      ctx.fillStyle = isFirst ? accent : '#ffffff';
-      const lx = align === 'right' ? x - w : x;
-      ctx.fillRect(lx, y + size * 0.24, w, Math.max(3, size * 0.055));
-      ctx.restore();
-      return w;
-    };
-
-    let y = 640;
-    leftLines.forEach((t, i) => {
-      const size = i === 0 ? 124 : 84;
-      const fs = fitSize(ctx, t, 900, FONT.sans, W - 128, size, 26, 0.01);
-      drawCoverLine(t, 64, y, fs, 'left', i === 0);
-      y += fs * 1.48;
-    });
-
-    let y2 = 1004;
-    rightLines.forEach((t, i) => {
-      const fs = fitSize(ctx, t, 900, FONT.sans, W - 128, 84, 24, 0.01);
-      drawCoverLine(t, W - 64, y2, fs, 'right', false);
-      y2 += fs * 1.48;
-    });
-
-    // --- 「特集」バッジ ---
-    ctx.save();
-    ctx.fillStyle = accent;
-    const bx = 64, by = H - 268;
-    ctx.beginPath(); ctx.arc(bx + 58, by + 58, 58, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.font = f(900, 34, FONT.sans);
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('特集', bx + 58, by + 60);
-    ctx.restore();
-    ctx.textBaseline = 'alphabetic';
-
-    // --- バーコードと小コピー ---
-    drawBarcode(ctx, W - 258, H - 152, 196, 100, 1234, '4 912345 678904');
-    ctx.save();
-    ctx.font = f(600, 20, FONT.cond);
-    ctx.fillStyle = deep;
-    ctx.textAlign = 'right';
-    drawTracked(ctx, String(v.sub || '').toUpperCase(), W - 274, H - 108, 2.2, 'right');
-    ctx.font = f(600, 17, FONT.cond);
-    ctx.globalAlpha = 0.72;
-    drawTracked(ctx, '¥0 / FREE', W - 274, H - 78, 2.2, 'right');
-    ctx.restore();
-
-    // --- 外枠 ---
-    ctx.save();
-    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(26, 26, W - 52, H - 52);
-    ctx.restore();
-
-    drawGrain(ctx, W, H, 0.05, 21, 3);
-  }
-});
-
-/* -------------------------------------------------------------------------
- * 6.2 新聞一面風
- *   明朝＋縦書き＋網点写真。識者コメント欄だけは読める本物のテキストにする。
- * ---------------------------------------------------------------------- */
-MODES.push({
-  id: 'newspaper',
-  name: '新聞風',
-  desc: '号外の一面風。大見出しを人物に重ね、識者コメント欄でネタを効かせる。写真は新聞の網点に変換。',
-  heavy: true,
-  fields: [
-    { key: 'paper', label: '題字', type: 'text', def: '朝報', placeholder: '朝報' },
-    { key: 'date', label: '発行日', type: 'text', def: '令和八年九月二日（水）朝刊　第12345号', placeholder: '令和八年九月二日（水）朝刊　第12345号' },
-    { key: 'head', label: 'メイン見出し', type: 'text', def: '本日も 早起き成功', placeholder: '本日も 早起き成功' },
-    { key: 'subs', label: 'サブ見出し', type: 'textarea', rows: 3, def: '三日連続の快挙\n本人「眠い」', placeholder: '三日連続の快挙\n本人「眠い」' },
-    {
-      key: 'experts', label: '識者コメント', type: 'textarea', rows: 4,
-      def: '朝活大学教授 早起 太郎氏｜えらい。とてもえらい。この調子で明日も起きてほしい。\n睡眠評論家 布団 愛子氏｜正直、二度寝しても誰も責めない。だが今日は起きた。それが尊い。',
-      placeholder: '朝活大学教授 早起 太郎氏｜えらい。'
-    },
-    { key: 'caption', label: 'キャプション', type: 'text', def: '＝午前七時、自室にて（写真）', placeholder: '＝午前七時、自室にて（写真）' }
-  ],
-  render(ctx, env) {
-    const { img, meta, v } = env, W = env.W, H = env.H;
-    const PAPER = '#f2eee3', INK = '#16161a', RED = '#a41d1d';
-    const M = 62;
-    // 見出し帯。写真枠の上端をここに揃えることで枠線と帯が二重に出るのを防ぐ
-    const hbY = 226, hbH = 218;
-
-    ctx.fillStyle = PAPER; ctx.fillRect(0, 0, W, H);
-
-    // --- 題字 ---
-    ctx.fillStyle = INK; ctx.textBaseline = 'alphabetic';
-    const title = v.paper || '朝報';
-    const tsize = fitSize(ctx, title, 900, FONT.serif, 520, 118, 40, 0.06);
-    ctx.font = f(900, tsize, FONT.serif);
-    drawTracked(ctx, title, W / 2, 148, tsize * 0.06, 'center');
-
-    // 号外バッジ
-    ctx.save();
-    ctx.fillStyle = RED;
-    roundRect(ctx, M, 66, 128, 60, 6); ctx.fill();
-    ctx.fillStyle = PAPER; ctx.font = f(900, 34, FONT.serif);
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    drawTracked(ctx, '号外', M + 64, 98, 4, 'center');
-    ctx.restore();
-    ctx.textBaseline = 'alphabetic';
-
-    // 発行日（右上・縦書き風の細字）
-    ctx.font = f(400, 21, FONT.serif);
-    ctx.fillStyle = INK; ctx.textAlign = 'right';
-    ctx.fillText(v.date || '', W - M, 108);
-    ctx.font = f(400, 18, FONT.serif);
-    ctx.globalAlpha = 0.7;
-    ctx.fillText('おはようVtuber新聞社', W - M, 138);
-    ctx.globalAlpha = 1;
-    ctx.textAlign = 'left';
-
-    // 二重罫
-    ctx.fillStyle = INK;
-    ctx.fillRect(M, 176, W - M * 2, 4);
-    ctx.fillRect(M, 186, W - M * 2, 1.5);
-
-    // --- 写真パネル（網点に変換） ---
-    const px0 = M, py0 = hbY, pw = 632, ph = 860;
-    const scene = newCanvas(pw, ph);
-    const sx = scene.getContext('2d');
-    sx.fillStyle = '#e9e6dd'; sx.fillRect(0, 0, pw, ph);
-    const sp = place(env, { x: 16, y: 24, w: pw - 32, h: ph - 60 },
-      { fit: 'contain', anchorY: 1, anchorX: 0.5 });
-    sx.drawImage(img, sp.x, sp.y, sp.w, sp.h);
-    const halftoned = fxNewsprint(scene, pw, ph, { dot: 4.4 }) || scene;
-    ctx.drawImage(halftoned, px0, py0);
-
-    // 写真キャプション帯
-    ctx.save();
-    ctx.fillStyle = 'rgba(20,20,22,0.88)';
-    ctx.fillRect(px0, py0 + ph - 52, pw, 52);
-    ctx.fillStyle = PAPER;
-    ctx.font = f(400, 22, FONT.serif);
-    ctx.textBaseline = 'middle';
-    const capLines = wrapText(ctx, v.caption || '', pw - 32, 0);
-    ctx.fillText(capLines[0] || '', px0 + 16, py0 + ph - 26);
-    ctx.restore();
-    ctx.textBaseline = 'alphabetic';
-
-    // --- メイン見出しの帯（人物の上に重ねる） ---
-    // 写真の枠線は帯の高さの範囲を避けて描き、罫線が交差しないようにする
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, 0, W, hbY);
-    ctx.rect(0, hbY + hbH, W, H - hbY - hbH);
-    ctx.clip();
-    ctx.strokeStyle = INK; ctx.lineWidth = 2;
-    ctx.strokeRect(px0 + 1, py0 + 1, pw - 2, ph - 2);
-    ctx.restore();
-
-    ctx.save();
-    ctx.fillStyle = 'rgba(242,238,227,0.62)';
-    ctx.fillRect(M, hbY, W - M * 2, hbH);
-    ctx.fillStyle = INK;
-    ctx.fillRect(M, hbY, W - M * 2, 3);
-    ctx.fillRect(M, hbY + hbH - 3, W - M * 2, 3);
-    ctx.restore();
-
-    const hb = fitBlock(ctx, v.head || '', 900, FONT.serif, W - M * 2 - 48, hbH - 44, 130, 1.18, 0.04);
-    ctx.font = f(900, hb.size, FONT.serif);
-    let hy = hbY + (hbH - hb.lines.length * hb.size * 1.18) / 2 + hb.size * 0.9;
-    // 写真の上でも読めるよう、紙色の縁取りを回してから墨を乗せる
-    ctx.save();
-    ctx.strokeStyle = PAPER; ctx.lineWidth = hb.size * 0.14; ctx.lineJoin = 'round';
-    ctx.fillStyle = INK;
-    for (const ln of hb.lines) {
-      drawTracked(ctx, ln, W / 2, hy, hb.size * 0.04, 'center', 'both');
-      hy += hb.size * 1.18;
-    }
-    ctx.restore();
-
-    // --- 右カラム：識者コメント欄 ---
-    const cx0 = px0 + pw + 22;
-    const colX = cx0, colW = 1112 - cx0;
-    const experts = String(v.experts || '').split('\n').map(s => s.trim()).filter(Boolean).slice(0, 3);
-    const boxTop = hbY + hbH + 26, boxBottom = py0 + ph;
-    const boxH = (boxBottom - boxTop - (experts.length - 1) * 18) / Math.max(experts.length, 1);
-    experts.forEach((line, i) => {
-      const sep = line.indexOf('｜') >= 0 ? '｜' : (line.indexOf('|') >= 0 ? '|' : '：');
-      const idx = line.indexOf(sep);
-      const who = idx >= 0 ? line.slice(0, idx).trim() : '識者';
-      const say = idx >= 0 ? line.slice(idx + 1).trim() : line;
-      const by = boxTop + i * (boxH + 18);
-      ctx.save();
-      ctx.fillStyle = 'rgba(22,22,26,0.05)';
-      ctx.fillRect(colX, by, colW, boxH);
-      ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
-      ctx.strokeRect(colX + 0.75, by + 0.75, colW - 1.5, boxH - 1.5);
-      // 見出しタブ
-      ctx.fillStyle = INK;
-      ctx.fillRect(colX, by, colW, 40);
-      ctx.fillStyle = PAPER; ctx.font = f(700, 23, FONT.serif);
-      ctx.textBaseline = 'middle';
-      ctx.fillText('識　者　の　声', colX + 14, by + 21);
-      ctx.restore();
-      ctx.textBaseline = 'alphabetic';
-
-      ctx.fillStyle = INK;
-      ctx.font = f(700, 24, FONT.serif);
-      const whoLines = wrapText(ctx, who, colW - 28, 0);
-      let ty = by + 76;
-      for (const l of whoLines.slice(0, 2)) { ctx.fillText(l, colX + 14, ty); ty += 30; }
-      ctx.fillStyle = 'rgba(22,22,26,0.35)';
-      ctx.fillRect(colX + 14, ty - 12, colW - 28, 1);
-      ty += 14;
-      const sb = fitBlock(ctx, '「' + say + '」', 400, FONT.serif, colW - 34, boxH - (ty - by) - 16, 27, 1.5, 0);
-      ctx.fillStyle = INK;
-      ctx.font = f(400, sb.size, FONT.serif);
-      for (const l of sb.lines) { ctx.fillText(l, colX + 14, ty + sb.size * 0.8); ty += sb.size * 1.5; }
-    });
-
-    // --- 右端：サブ見出し（縦書き） ---
-    const subs = String(v.subs || '').split('\n').map(s => s.trim()).filter(Boolean).slice(0, 2);
-    ctx.save();
-    ctx.fillStyle = INK;
-    ctx.fillRect(1130, boxTop, 2, py0 + ph - boxTop);
-    let vx = W - M - 30;
-    subs.forEach((s, i) => {
-      const size = i === 0 ? 54 : 40;
-      ctx.font = f(900, size, FONT.serif);
-      ctx.fillStyle = i === 0 ? INK : 'rgba(22,22,26,0.82)';
-      vx = drawVerticalBlock(ctx, s, vx, boxTop + 10, size, 1.06, py0 + ph - boxTop - 20, 1.28) - size * 0.5;
-    });
-    ctx.restore();
-
-    // --- 下部：段組みのダミー本文 ---
-    const bt = py0 + ph + 26, bh = H - bt - 74;
-    const cols = 3, gap = 26;
-    const cwid = (W - M * 2 - gap * (cols - 1)) / cols;
-    const r = rnd(99);
-    ctx.save();
-    for (let c = 0; c < cols; c++) {
-      const x = M + c * (cwid + gap);
-      ctx.fillStyle = INK;
-      ctx.font = f(700, 24, FONT.serif);
-      ctx.fillText(['きょうの起床', 'おはよう経済', '気象'][c], x, bt + 22);
-      ctx.fillStyle = 'rgba(22,22,26,0.28)';
-      ctx.fillRect(x, bt + 34, cwid, 1.5);
-      let y = bt + 54;
-      while (y < bt + bh - 8) {
-        const w = cwid * (0.72 + r() * 0.28);
-        ctx.fillStyle = 'rgba(22,22,26,0.30)';
-        ctx.fillRect(x, y, w, 8);
-        y += 20;
-      }
-      if (c < cols - 1) {
-        ctx.fillStyle = 'rgba(22,22,26,0.25)';
-        ctx.fillRect(x + cwid + gap / 2, bt + 8, 1.5, bh - 16);
-      }
-    }
-    ctx.restore();
-
-    // --- フッタ罫 ---
-    ctx.fillStyle = INK;
-    ctx.fillRect(M, H - 62, W - M * 2, 1.5);
-    ctx.font = f(400, 19, FONT.serif);
-    ctx.fillStyle = 'rgba(22,22,26,0.72)';
-    ctx.fillText('※この紙面はフィクションです', M, H - 34);
-    ctx.textAlign = 'right';
-    ctx.fillText('おはようVtuber新聞社', W - M, H - 34);
-    ctx.textAlign = 'left';
-
-    drawGrain(ctx, W, H, 0.07, 5, 2);
-  }
-});
-
-/* -------------------------------------------------------------------------
- * 6.3 RPGタイトル風
- *   異方性Kuwahara＋色差にじみ＋紙質で水彩画調に加工し、金文字ロゴを重ねる。
- * ---------------------------------------------------------------------- */
-MODES.push({
-  id: 'rpg',
-  name: 'RPGタイトル風',
-  desc: '立ち絵を水彩風（異方性Kuwahara＋色差にじみ＋紙質）に加工し、JRPGのタイトル画面に馴染ませる。',
-  heavy: true,
-  fields: [
-    { key: 'title', label: 'タイトルロゴ', type: 'text', def: 'OHAYO VTUBER', placeholder: 'OHAYO VTUBER' },
-    { key: 'sub', label: 'サブタイトル', type: 'text', def: '～めざめの朝～', placeholder: '～めざめの朝～' },
-    { key: 'press', label: '下部テキスト', type: 'text', def: 'PRESS ANY BUTTON TO WAKE UP', placeholder: 'PRESS ANY BUTTON TO WAKE UP' }
-  ],
-  render(ctx, env) {
-    const { img, meta, v } = env, W = env.W, H = env.H;
-    const [ah, as] = meta.accentHsl;
-
-    /* --- 1) 加工前のシーンを組み立てる（背景 + 立ち絵） --- */
-    const scene = newCanvas(W, H);
-    const s = scene.getContext('2d');
-    const bg = s.createLinearGradient(0, 0, 0, H);
-    bg.addColorStop(0, hsl(ah + 190, 0.36, 0.86));
-    bg.addColorStop(0.45, hsl(ah + 150, 0.30, 0.78));
-    bg.addColorStop(1, hsl(ah + 40, 0.34, 0.62));
-    s.fillStyle = bg; s.fillRect(0, 0, W, H);
-    // 背後の光
-    const glow = s.createRadialGradient(W / 2, H * 0.55, 40, W / 2, H * 0.55, W * 0.46);
-    glow.addColorStop(0, 'rgba(255,246,214,0.52)');
-    glow.addColorStop(0.45, 'rgba(255,238,190,0.18)');
-    glow.addColorStop(1, 'rgba(255,235,180,0)');
-    s.fillStyle = glow; s.fillRect(0, 0, W, H);
-    // 地面のにじみ
-    const gr = s.createRadialGradient(W / 2, H * 0.94, 20, W / 2, H * 0.94, W * 0.52);
-    gr.addColorStop(0, hsl(ah + 30, 0.30, 0.44, 0.55));
-    gr.addColorStop(1, hsl(ah + 30, 0.30, 0.44, 0));
-    s.fillStyle = gr; s.fillRect(0, H * 0.6, W, H * 0.4);
-
-    // ロゴを主役にするため、立ち絵は大きく淡く「背景画」として敷く
-    const p = place(env, { x: W * 0.04, y: H * 0.03, w: W * 0.92, h: H * 0.95 },
-      { fit: 'contain', anchorY: 1, anchorX: 0.5 });
-    s.save();
-    s.globalAlpha = 0.88;
-    try { s.filter = 'saturate(0.95) brightness(1.06)'; } catch (e) { }
-    s.drawImage(img, p.x, p.y, p.w, p.h);
-    s.restore();
-    s.filter = 'none';
-
-    /* --- 2) 水彩フィルタ --- */
-    const painted = fxWatercolor(scene, { res: 840, radius: 5.6, sharpness: 4.5, soften: 0.45 });
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(painted || scene, 0, 0, W, H);
-
-    /* --- 3) 光の演出・粒子（Canvas2D） --- */
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    const rg = ctx.createRadialGradient(W / 2, H * 0.46, 30, W / 2, H * 0.46, W * 0.55);
-    rg.addColorStop(0, 'rgba(255,240,190,0.16)');
-    rg.addColorStop(1, 'rgba(255,240,190,0)');
-    ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
-    const r = rnd(7331);
-    for (let i = 0; i < 130; i++) {
-      const x = r() * W, y = r() * H * 0.95;
-      const rad = 2 + r() * 9;
-      const a = 0.10 + r() * 0.42;
-      const pg = ctx.createRadialGradient(x, y, 0, x, y, rad);
-      pg.addColorStop(0, `rgba(255,250,222,${a})`);
-      pg.addColorStop(1, 'rgba(255,250,222,0)');
-      ctx.fillStyle = pg;
-      ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI * 2); ctx.fill();
-    }
-    ctx.restore();
-
-    // 立ち絵を背景に沈める霞（ロゴを主役にする）
-    ctx.fillStyle = 'rgba(238,230,208,0.13)';
-    ctx.fillRect(0, 0, W, H);
-
-    // 上下の暗がり（ロゴを読ませるため）
-    const top = ctx.createLinearGradient(0, 0, 0, H * 0.36);
-    top.addColorStop(0, 'rgba(18,20,40,0.46)');
-    top.addColorStop(1, 'rgba(18,20,40,0)');
-    ctx.fillStyle = top; ctx.fillRect(0, 0, W, H * 0.36);
-    const bot = ctx.createLinearGradient(0, H, 0, H * 0.66);
-    bot.addColorStop(0, 'rgba(18,20,40,0.58)');
-    bot.addColorStop(1, 'rgba(18,20,40,0)');
-    ctx.fillStyle = bot; ctx.fillRect(0, H * 0.66, W, H * 0.34);
-    drawVignette(ctx, W, H, 0.42);
-
-    /* --- 4) タイトルロゴ（Garamondの金箔押し・画面中央） --- */
-    const title = (v.title || 'OHAYO VTUBER').toUpperCase();
-    const trk = 0.06;
-    const LW = 400;   // 細身のウェイト
-    const tsize = fitSize(ctx, title, LW, FONT.fantasy, W - 210, 260, 40, trk);
-    const baseY = Math.round(H * 0.47 + tsize * 0.34);
-    ctx.font = f(LW, tsize, FONT.fantasy);
-    ctx.textBaseline = 'alphabetic';
-
-    // ロゴ背後の後光（背景の立ち絵とロゴを分離する）
-    ctx.save();
-    const halo = ctx.createRadialGradient(W / 2, baseY - tsize * 0.32, tsize * 0.2,
-                                          W / 2, baseY - tsize * 0.32, W * 0.62);
-    halo.addColorStop(0, 'rgba(26,20,42,0.62)');
-    halo.addColorStop(0.55, 'rgba(26,20,42,0.28)');
-    halo.addColorStop(1, 'rgba(26,20,42,0)');
-    ctx.fillStyle = halo;
-    ctx.fillRect(0, 0, W, H);
-    ctx.restore();
-
-    ctx.save();
-    // 艶やグラデーションは持たせず、白のマットな面で置く。
-    // 背景から浮かせるぶんだけ、柔らかい影を1枚だけ敷く。
-    ctx.shadowColor = 'rgba(18,14,30,0.55)'; ctx.shadowBlur = 30; ctx.shadowOffsetY = 3;
-    ctx.fillStyle = '#f7f5ef';
-    drawTracked(ctx, title, W / 2, baseY, tsize * trk, 'center');
-    ctx.restore();
-
-    // 装飾（ロゴの上下に細い罫と菱形）
-    ctx.save();
-    ctx.font = f(LW, tsize, FONT.fantasy);
-    const tw = Math.min(W - 110, trackedWidth(ctx, title, tsize * trk) + tsize * 0.3);
-    const rule = (ry, dia) => {
-      const lg = ctx.createLinearGradient(W / 2 - tw / 2, 0, W / 2 + tw / 2, 0);
-      lg.addColorStop(0, 'rgba(247,245,239,0)');
-      lg.addColorStop(0.5, 'rgba(247,245,239,0.9)');
-      lg.addColorStop(1, 'rgba(247,245,239,0)');
-      ctx.fillStyle = lg;
-      ctx.fillRect(W / 2 - tw / 2, ry, tw, 2);
-      ctx.save();
-      ctx.translate(W / 2, ry + 1); ctx.rotate(Math.PI / 4);
-      ctx.fillStyle = '#f7f5ef';
-      ctx.fillRect(-dia / 2, -dia / 2, dia, dia);
-      ctx.restore();
-    };
-    const ruleTop = baseY - tsize * 0.92 - 30;
-    const ly = baseY + 46;
-    rule(ruleTop, 12);
-    rule(ly, 15);
-    ctx.restore();
-
-    // サブタイトル
-    if (v.sub) {
-      const ssize = fitSize(ctx, v.sub, 700, FONT.serif, W - 300, 50, 18, 0.12);
-      ctx.font = f(700, ssize, FONT.serif);
-      ctx.save();
-      ctx.shadowColor = 'rgba(0,0,0,0.75)'; ctx.shadowBlur = 16;
-      ctx.fillStyle = '#f2f0ea';
-      drawTracked(ctx, v.sub, W / 2, ly + 70 + ssize * 0.8, ssize * 0.12, 'center');
-      ctx.restore();
-    }
-
-    /* --- 5) PRESS START --- */
-    if (v.press) {
-      const ps = (v.press || '').toUpperCase();
-      const psize = fitSize(ctx, ps, 500, FONT.cond, W - 220, 38, 14, 0.22);
-      ctx.font = f(500, psize, FONT.cond);
-      ctx.save();
-      ctx.shadowColor = 'rgba(10,8,20,0.7)'; ctx.shadowBlur = 16;
-      ctx.fillStyle = '#f7f5ef';
-      drawTracked(ctx, ps, W / 2, H - 118, psize * 0.22, 'center');
-      ctx.restore();
-      ctx.save();
-      ctx.globalAlpha = 0.45; ctx.fillStyle = '#f7f5ef';
-      ctx.fillRect(W / 2 - 110, H - 96, 220, 1.5);
-      ctx.restore();
-    }
-
-    // 紙目は水彩フィルタ側で作っているので、ここは軽く粒を足すだけ
-    drawGrain(ctx, W, H, 0.03, 3, 4);
-  }
-});
-
-/* -------------------------------------------------------------------------
- * 6.4 映画ポスター風（劇画調）
- *   ポスタライズ＋インク輪郭＋網点＋グレイン＋デュオトーンの重ね合わせ。
- * ---------------------------------------------------------------------- */
-MODES.push({
-  id: 'poster',
-  name: '映画ポスター風',
-  desc: '劇画・グラフィックノベル調。階調を落として輪郭線と網点を重ね、デュオトーンで仕上げる。',
-  heavy: true,
-  fields: [
-    { key: 'catch', label: 'キャッチコピー', type: 'text', def: 'その朝、\n世界はまだ眠っていた。', placeholder: 'その朝、世界はまだ眠っていた。' },
-    { key: 'title', label: 'タイトルロゴ', type: 'text', def: 'OHAYO', placeholder: 'OHAYO' },
-    { key: 'release', label: '公開日', type: 'text', def: '毎朝 7:00 全世界同時配信', placeholder: '毎朝 7:00 全世界同時配信' },
-    {
-      key: 'credits', label: 'クレジット', type: 'textarea', rows: 3,
-      def: 'DIRECTED BY MORNING ALARM   STARRING YOU   MUSIC BY BIRDS OUTSIDE\nPRODUCED BY TWO CUPS OF COFFEE   A MORNING PICTURES RELEASE',
-      placeholder: 'DIRECTED BY ...'
-    }
-  ],
-  render(ctx, env) {
-    const { img, meta, v } = env, W = env.W, H = env.H;
-    const [ah, as] = meta.accentHsl;
-
-    /* --- 1) 加工前のシーン（陰影の強い舞台） --- */
-    const scene = newCanvas(W, H);
-    const s = scene.getContext('2d');
-    const bg = s.createLinearGradient(0, 0, 0, H);
-    bg.addColorStop(0, '#1a1a1e');
-    bg.addColorStop(0.42, '#6e6e74');
-    bg.addColorStop(0.72, '#3a3a41');
-    bg.addColorStop(1, '#1c1c22');
-    s.fillStyle = bg; s.fillRect(0, 0, W, H);
-    // 背後のスポットライト（劇画の陰影を作る土台）
-    const spot = s.createRadialGradient(W * 0.5, H * 0.36, 20, W * 0.5, H * 0.46, W * 0.62);
-    spot.addColorStop(0, 'rgba(255,255,255,0.72)');
-    spot.addColorStop(0.55, 'rgba(190,190,196,0.26)');
-    spot.addColorStop(1, 'rgba(0,0,0,0)');
-    s.fillStyle = spot; s.fillRect(0, 0, W, H);
-
-    const p = place(env, { x: W * 0.08, y: H * 0.06, w: W * 0.84, h: H * 0.86 },
-      { fit: 'contain', anchorY: 1, anchorX: 0.5 });
-    s.save();
-    try { s.filter = 'contrast(1.18) saturate(0.9)'; } catch (e) { }
-    s.drawImage(img, p.x, p.y, p.w, p.h);
-    s.restore();
-    s.filter = 'none';
-
-    /* --- 2) 劇画フィルタ（デュオトーンのアクセントは立ち絵から採る） --- */
-    const accRgb = (() => {
-      const c = newCanvas(1, 1).getContext('2d');
-      c.fillStyle = hsl(ah, clamp(as * 1.15, 0.55, 0.95), 0.42);
-      c.fillRect(0, 0, 1, 1);
-      const d = c.getImageData(0, 0, 1, 1).data;
-      return [d[0] / 255, d[1] / 255, d[2] / 255];
-    })();
-    const gek = fxGekiga(scene, {
-      res: 900, levels: 5.0, edge: 0.95, dot: 5.4, grain: 0.07, duotone: 1.0,
-      dark: [0.045, 0.042, 0.055], light: [0.955, 0.945, 0.915], accent: accRgb
-    });
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(gek || scene, 0, 0, W, H);
-
-    // 上下の締め
-    const tg = ctx.createLinearGradient(0, 0, 0, H * 0.32);
-    tg.addColorStop(0, 'rgba(8,8,11,0.80)');
-    tg.addColorStop(1, 'rgba(8,8,11,0)');
-    ctx.fillStyle = tg; ctx.fillRect(0, 0, W, H * 0.32);
-    const bg2 = ctx.createLinearGradient(0, H, 0, H * 0.60);
-    bg2.addColorStop(0, 'rgba(8,8,11,0.90)');
-    bg2.addColorStop(0.45, 'rgba(8,8,11,0.45)');
-    bg2.addColorStop(1, 'rgba(8,8,11,0)');
-    ctx.fillStyle = bg2; ctx.fillRect(0, H * 0.60, W, H * 0.40);
-    drawVignette(ctx, W, H, 0.40);
-
-    /* --- 3) キャッチコピー --- */
-    ctx.textBaseline = 'alphabetic';
-    const cb = fitBlock(ctx, v.catch || '', 900, FONT.serif, W - 190, 250, 76, 1.36, 0.05);
-    ctx.font = f(900, cb.size, FONT.serif);
-    ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,0.85)'; ctx.shadowBlur = 22;
-    ctx.fillStyle = '#f2efe8';
-    let cy = 132 + cb.size * 0.9;
-    for (const ln of cb.lines) { drawTracked(ctx, ln, W / 2, cy, cb.size * 0.05, 'center'); cy += cb.size * 1.36; }
-    ctx.restore();
-
-    /* --- 4) タイトルロゴ --- */
-    const title = (v.title || '').toUpperCase();
-    if (title) {
-      const tsize = fitSize(ctx, title, 900, FONT.poster, W - 180, 178, 40, 0.02);
-      const ty = H - 268;
-      ctx.font = f(900, tsize, FONT.poster);
-      ctx.save();
-      ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 30; ctx.shadowOffsetY = 4;
-      const tg2 = ctx.createLinearGradient(0, ty - tsize, 0, ty + tsize * 0.1);
-      tg2.addColorStop(0, '#ffffff');
-      tg2.addColorStop(0.62, '#e8e3d8');
-      tg2.addColorStop(1, hsl(ah, 0.55, 0.62));
-      ctx.fillStyle = tg2;
-      drawTracked(ctx, title, W / 2, ty, tsize * 0.02, 'center');
-      ctx.restore();
-
-      // タイトル脇の罫
-      ctx.save();
-      ctx.font = f(900, tsize, FONT.poster);
-      const tw = trackedWidth(ctx, title, tsize * 0.02);
-      ctx.fillStyle = 'rgba(240,236,226,0.55)';
-      const ry = ty - tsize * 0.30;
-      const gapw = tw / 2 + 26;
-      if (gapw < W / 2 - 70) {
-        ctx.fillRect(70, ry, W / 2 - gapw - 70, 2);
-        ctx.fillRect(W / 2 + gapw, ry, W / 2 - gapw - 70, 2);
-      }
-      ctx.restore();
-    }
-
-    /* --- 5) 公開日・クレジット --- */
-    if (v.release) {
-      const rsize = fitSize(ctx, v.release, 700, FONT.serif, W - 260, 40, 16, 0.16);
-      ctx.font = f(700, rsize, FONT.serif);
-      ctx.save();
-      ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 14;
-      ctx.fillStyle = hsl(ah, 0.62, 0.70);
-      drawTracked(ctx, v.release, W / 2, H - 196, rsize * 0.16, 'center');
-      ctx.restore();
-    }
-    const credits = String(v.credits || '').split('\n').map(x => x.trim()).filter(Boolean);
-    ctx.save();
-    ctx.fillStyle = 'rgba(232,228,218,0.80)';
-    let ccy = H - 150;
-    for (const line of credits.slice(0, 4)) {
-      const csize = fitSize(ctx, line, 400, FONT.cond, W - 150, 21, 9, 0.14);
-      ctx.font = f(400, csize, FONT.cond);
-      drawTracked(ctx, line.toUpperCase(), W / 2, ccy, csize * 0.14, 'center');
-      ccy += csize * 1.75;
-    }
-    ctx.restore();
-
-    // 外枠
-    ctx.save();
-    ctx.strokeStyle = 'rgba(236,232,222,0.30)';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(30, 30, W - 60, H - 60);
-    ctx.restore();
-
-    drawGrain(ctx, W, H, 0.085, 11, 2);
-  }
-});
-
-/* -------------------------------------------------------------------------
- * 6.5 書籍平積み風
- *   Canvas2Dのアフィン変換では真の遠近が出せないため、WebGL2で簡易3Dシーンを
- *   構築し、透視投影パイプラインに歪みを任せる。
- * ---------------------------------------------------------------------- */
-
-/* --- 4x4 行列（列優先 / GLSLと同じ並び） --- */
+/* --- 4x4行列（列優先 / GLSLと同じ並び） --- */
 const M4 = {
   mul(a, b) {
     const o = new Float32Array(16);
@@ -1813,20 +1140,25 @@ const M4 = {
       -dot(x, eye), -dot(y, eye), -dot(z, eye), 1
     ]);
   },
-  /* 平行移動 → Y回転 → スケール をまとめた行列 */
-  trs(t, ryDeg, s) {
-    const c = Math.cos(ryDeg * Math.PI / 180), si = Math.sin(ryDeg * Math.PI / 180);
-    const sx = s[0], sy = s[1], sz = s[2];
-    return new Float32Array([
-      c * sx, 0, -si * sx, 0,
-      0, sy, 0, 0,
-      si * sz, 0, c * sz, 0,
-      t[0], t[1], t[2], 1
-    ]);
+  /* 位置 / 回転(度 XYZ) / 大きさ からモデル行列を作る（T * Ry * Rx * Rz * S） */
+  compose(pos, rot, size) {
+    const d = Math.PI / 180;
+    const cx = Math.cos((rot[0] || 0) * d), sx = Math.sin((rot[0] || 0) * d);
+    const cy = Math.cos((rot[1] || 0) * d), sy = Math.sin((rot[1] || 0) * d);
+    const cz = Math.cos((rot[2] || 0) * d), sz = Math.sin((rot[2] || 0) * d);
+    const R = [
+      [cy * cz + sy * sx * sz, -cy * sz + sy * sx * cz, sy * cx],
+      [cx * sz, cx * cz, -sx],
+      [-sy * cz + cy * sx * sz, sy * sz + cy * sx * cz, cy * cx]
+    ];
+    const o = new Float32Array(16);
+    for (let c = 0; c < 3; c++) for (let r = 0; r < 3; r++) o[r + c * 4] = R[r][c] * size[c];
+    o[12] = pos[0]; o[13] = pos[1]; o[14] = pos[2]; o[15] = 1;
+    return o;
   }
 };
 
-const VS_BOOK = `#version 300 es
+const VS_STAGE = `#version 300 es
 in vec3 a_pos; in vec2 a_uv; in vec3 a_nrm;
 uniform mat4 u_mvp, u_model, u_view;
 uniform vec2 u_uvScale;
@@ -1839,14 +1171,13 @@ void main(){
   gl_Position = u_mvp * vec4(a_pos, 1.0);
 }`;
 
-const FS_BOOK = `#version 300 es
+const FS_STAGE = `#version 300 es
 precision highp float;
 in vec2 v_uv; in vec3 v_nrm; in float v_viewZ;
 out vec4 fragColor;
 uniform sampler2D u_tex;
-uniform vec3 u_color;
-uniform float u_useTex, u_unlit, u_alpha, u_mode, u_focus, u_dofScale;
-uniform vec3 u_light;
+uniform vec3 u_color, u_light;
+uniform float u_useTex, u_unlit, u_alpha, u_mode, u_focus, u_dofScale, u_ambient;
 void main(){
   if (u_mode > 0.5){                                  // CoC（被写界深度マスク）
     float coc = clamp(abs(v_viewZ - u_focus) * u_dofScale, 0.0, 1.0);
@@ -1858,70 +1189,1374 @@ void main(){
   if (u_unlit < 0.5){
     vec3 n = normalize(v_nrm);
     vec3 l = normalize(u_light);
-    sh = 0.38 + 0.60 * max(dot(n, l), 0.0);
-    sh += 0.06 * max(n.y, 0.0);                        // 上面をわずかに明るく
+    sh = u_ambient + (1.0 - u_ambient) * max(dot(n, l), 0.0);
+    sh += 0.06 * max(n.y, 0.0);
   }
   fragColor = vec4(base.rgb * sh, base.a * u_alpha);
 }`;
 
-/* 直方体ジオメトリ（interleaved: pos3 / uv2 / nrm3, stride 32B）
- * 先頭6頂点 = 上面（表紙テクスチャ用）、以降30頂点 = 側面・底面（小口） */
-function boxGeometry(hx, hy, hz) {
+/* 単位立方体（-0.5〜0.5）。面ごとに6頂点、順は TOP/BOTTOM/FRONT/BACK/RIGHT/LEFT。
+ * 各面のUVは、その面を正面から見たときに絵が正立するよう割り当てている。 */
+const BOX_GEOMETRY = (() => {
   const v = [];
-  const quad = (a, b, c, d, n, uvs) => {
-    const pts = [a, b, c, a, c, d];
-    const uv = [uvs[0], uvs[1], uvs[2], uvs[0], uvs[2], uvs[3]];
-    for (let i = 0; i < 6; i++) v.push(pts[i][0], pts[i][1], pts[i][2], uv[i][0], uv[i][1], n[0], n[1], n[2]);
+  const quad = (pts, n, uvs) => {
+    const idx = [0, 1, 2, 0, 2, 3];
+    for (const i of idx) v.push(pts[i][0], pts[i][1], pts[i][2], uvs[i][0], uvs[i][1], n[0], n[1], n[2]);
   };
-  const P = (x, y, z) => [x, y, z];
-  // 上面（+Y）: 画像の上端を奥（-Z）側に置く
-  quad(P(-hx, hy, -hz), P(hx, hy, -hz), P(hx, hy, hz), P(-hx, hy, hz), [0, 1, 0],
-    [[0, 1], [1, 1], [1, 0], [0, 0]]);
-  // 底面（-Y）
-  quad(P(-hx, -hy, hz), P(hx, -hy, hz), P(hx, -hy, -hz), P(-hx, -hy, -hz), [0, -1, 0],
-    [[0, 0], [1, 0], [1, 1], [0, 1]]);
-  // 手前（+Z）
-  quad(P(-hx, -hy, hz), P(hx, -hy, hz), P(hx, hy, hz), P(-hx, hy, hz), [0, 0, 1],
-    [[0, 0], [1, 0], [1, 1], [0, 1]]);
-  // 奥（-Z）
-  quad(P(hx, -hy, -hz), P(-hx, -hy, -hz), P(-hx, hy, -hz), P(hx, hy, -hz), [0, 0, -1],
-    [[0, 0], [1, 0], [1, 1], [0, 1]]);
-  // 右（+X）
-  quad(P(hx, -hy, hz), P(hx, -hy, -hz), P(hx, hy, -hz), P(hx, hy, hz), [1, 0, 0],
-    [[0, 0], [1, 0], [1, 1], [0, 1]]);
-  // 左（-X）
-  quad(P(-hx, -hy, -hz), P(-hx, -hy, hz), P(-hx, hy, hz), P(-hx, hy, -hz), [-1, 0, 0],
-    [[0, 0], [1, 0], [1, 1], [0, 1]]);
+  const U = [[0, 0], [1, 0], [1, 1], [0, 1]];
+  const h = 0.5;
+  quad([[-h, h, h], [h, h, h], [h, h, -h], [-h, h, -h]], [0, 1, 0], U);      // TOP   (奥=上)
+  quad([[-h, -h, -h], [h, -h, -h], [h, -h, h], [-h, -h, h]], [0, -1, 0], U); // BOTTOM
+  quad([[-h, -h, h], [h, -h, h], [h, h, h], [-h, h, h]], [0, 0, 1], U);      // FRONT (上=上)
+  quad([[h, -h, -h], [-h, -h, -h], [-h, h, -h], [h, h, -h]], [0, 0, -1], U); // BACK
+  quad([[h, -h, h], [h, -h, -h], [h, h, -h], [h, h, h]], [1, 0, 0], U);      // RIGHT
+  quad([[-h, -h, -h], [-h, -h, h], [-h, h, h], [-h, h, -h]], [-1, 0, 0], U); // LEFT
   return new Float32Array(v);
-}
-function planeGeometry(hx, hz) {
-  const v = [];
-  const push = (x, z, u, w) => v.push(x, 0, z, u, w, 0, 1, 0);
-  push(-hx, -hz, 0, 1); push(hx, -hz, 1, 1); push(hx, hz, 1, 0);
-  push(-hx, -hz, 0, 1); push(hx, hz, 1, 0); push(-hx, hz, 0, 0);
-  return new Float32Array(v);
+})();
+
+/* 単位平面（XZ, y=0, 法線+Y）。UVはTOP面と同じ向き */
+const PLANE_GEOMETRY = new Float32Array([
+  -0.5, 0, 0.5, 0, 0, 0, 1, 0,
+  0.5, 0, 0.5, 1, 0, 0, 1, 0,
+  0.5, 0, -0.5, 1, 1, 0, 1, 0,
+  -0.5, 0, 0.5, 0, 0, 0, 1, 0,
+  0.5, 0, -0.5, 1, 1, 0, 1, 0,
+  -0.5, 0, -0.5, 0, 1, 0, 1, 0
+]);
+
+const Stage3D = (() => {
+  const FACE = { TOP: 0, BOTTOM: 6, FRONT: 12, BACK: 18, RIGHT: 24, LEFT: 30 };
+  const ALL = [FACE.TOP, FACE.BOTTOM, FACE.FRONT, FACE.BACK, FACE.RIGHT, FACE.LEFT];
+
+  /* opt: { W, H, clear, light, ambient, camera:{eye,at,fov,focus,dofScale,blur}, draw(api) }
+   * draw() はカラーパスとCoCパスで2回呼ばれる。api.mode が 0 のときだけ
+   * 半透明（影など）を描くと、被写界深度マスクが濁らない。 */
+  function render(ctx, opt) {
+    const gl = GLX.gl;
+    if (!gl) return false;
+    const W = opt.W, H = opt.H;
+    GLX.resize(W, H);
+    const trash = [];
+    const prog = GLX.program('stage', VS_STAGE, FS_STAGE);
+
+    const boxBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, boxBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, BOX_GEOMETRY, gl.STATIC_DRAW);
+    const planeBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, planeBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, PLANE_GEOMETRY, gl.STATIC_DRAW);
+
+    const cam = opt.camera;
+    const view = M4.lookAt(cam.eye, cam.at, [0, 1, 0]);
+    const proj = M4.perspective(cam.fov || 30, 1, 0.05, 300);
+    const vp = M4.mul(proj, view);
+    const common = {
+      u_view: view,
+      u_light: opt.light || [0.40, 0.86, 0.45],
+      u_ambient: opt.ambient === undefined ? 0.42 : opt.ambient,
+      u_focus: cam.focus,
+      u_dofScale: cam.dofScale === undefined ? 0.4 : cam.dofScale
+    };
+
+    let mode = 0, bound = null;
+    const bind = (buf) => {
+      if (bound === buf) return;
+      bound = buf;
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 32, 0);
+      gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 32, 12);
+      gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 32, 20);
+    };
+    const draw = (m, u, first, count) => {
+      GLX.setUniforms(prog, Object.assign({
+        u_mvp: M4.mul(vp, m), u_model: m, u_mode: mode,
+        u_useTex: 0, u_unlit: 0, u_alpha: 1, u_color: [1, 1, 1], u_uvScale: [1, 1]
+      }, common, u));
+      gl.drawArrays(gl.TRIANGLES, first, count);
+    };
+
+    const api = {
+      get mode() { return mode; },
+      /* 半透明（影・光）を描くときは true → 描き終えたら false */
+      blend(on) {
+        if (on) {
+          gl.enable(gl.BLEND);
+          gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+          gl.depthMask(false);
+        } else { gl.disable(gl.BLEND); gl.depthMask(true); }
+      },
+      /* pos/rot/size の直方体。tex を渡すと face 面だけテクスチャ、他は edge 色 */
+      box(pos, rot, size, o) {
+        o = o || {};
+        bind(boxBuf);
+        const m = M4.compose(pos, rot, size);
+        const shared = {
+          u_alpha: o.alpha === undefined ? 1 : o.alpha,
+          u_unlit: o.unlit ? 1 : 0
+        };
+        if (o.tex) {
+          const fi = o.face === undefined ? FACE.TOP : o.face;
+          draw(m, Object.assign({ u_useTex: 1, u_tex: { tex: o.tex } }, shared), fi, 6);
+          const edge = o.edge || [0.94, 0.92, 0.86];
+          for (const fa of ALL) if (fa !== fi) draw(m, Object.assign({ u_color: edge }, shared), fa, 6);
+        } else {
+          draw(m, Object.assign({ u_color: o.color || [0.8, 0.8, 0.8] }, shared), 0, 36);
+        }
+        return m;
+      },
+      /* XZ平面（床・壁・影）。rot で立てれば壁になる */
+      quad(pos, rot, size, o) {
+        o = o || {};
+        bind(planeBuf);
+        const m = M4.compose(pos, rot, [size[0], 1, size[1]]);
+        draw(m, {
+          u_useTex: o.tex ? 1 : 0, u_tex: o.tex ? { tex: o.tex } : undefined,
+          u_color: o.color || [1, 1, 1], u_alpha: o.alpha === undefined ? 1 : o.alpha,
+          u_unlit: o.unlit ? 1 : 0, u_uvScale: o.uvScale || [1, 1]
+        }, 0, 6);
+        return m;
+      }
+    };
+
+    const runPass = (target, m) => {
+      mode = m; bound = null;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, target.fb);
+      gl.viewport(0, 0, W, H);
+      gl.useProgram(prog);
+      gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL); gl.depthMask(true);
+      gl.disable(gl.BLEND); gl.disable(gl.CULL_FACE);
+      const c = m === 1 ? [1, 1, 1] : (opt.clear || [0.09, 0.09, 0.10]);
+      gl.clearColor(c[0], c[1], c[2], 1);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      opt.draw(api);
+      gl.disable(gl.BLEND); gl.depthMask(true);
+    };
+
+    const fC = GLX.fbo(W, H, true), fZ = GLX.fbo(W, H, true), fA = GLX.fbo(W, H), fB = GLX.fbo(W, H);
+    trash.push(fC, fZ, fA, fB);
+    runPass(fC, 0);
+    runPass(fZ, 1);
+
+    const pBlur = GLX.program('blur', VS_FULL, FS_BLUR);
+    const pDof = GLX.program('dof', VS_FULL, FS_DOF);
+    const br = cam.blur === undefined ? 8 : cam.blur;
+    GLX.pass(pBlur, { u_tex: { tex: fC.tex }, u_dir: [1, 0], u_radius: br }, fA);
+    GLX.pass(pBlur, { u_tex: { tex: fA.tex }, u_dir: [0, 1], u_radius: br }, fB);
+    GLX.pass(pDof, { u_sharp: { tex: fC.tex }, u_blur: { tex: fB.tex }, u_coc: { tex: fZ.tex } }, null);
+
+    ctx.drawImage(GLX.canvas, 0, 0);
+    gl.deleteBuffer(boxBuf); gl.deleteBuffer(planeBuf);
+    GLX.dispose(trash);
+    return true;
+  }
+
+  return { render, FACE };
+})();
+
+/* --- チョーク画（黒板モード用）: 輪郭と明部を白い擦れとして抜き出す --- */
+const FS_CHALK = FS_HEAD + GLSL_NOISE + `
+uniform sampler2D u_tex;
+uniform float u_strength;
+uniform float u_tint;      // 0 = 白チョークのみ / 1 = 元の色を残した色チョーク
+uniform vec3 u_chalk;
+float lm(vec2 uv){ vec4 c = texture(u_tex, uv); return luma(c.rgb) * c.a; }
+void main(){
+  vec2 px = 1.0 / u_res;
+  float gx = lm(v_uv+px*vec2(-1,-1)) + 2.0*lm(v_uv+px*vec2(-1,0)) + lm(v_uv+px*vec2(-1,1))
+           - lm(v_uv+px*vec2( 1,-1)) - 2.0*lm(v_uv+px*vec2( 1,0)) - lm(v_uv+px*vec2( 1,1));
+  float gy = lm(v_uv+px*vec2(-1,-1)) + 2.0*lm(v_uv+px*vec2(0,-1)) + lm(v_uv+px*vec2(1,-1))
+           - lm(v_uv+px*vec2(-1, 1)) - 2.0*lm(v_uv+px*vec2(0, 1)) - lm(v_uv+px*vec2(1, 1));
+  float edge = smoothstep(0.06, 0.34, length(vec2(gx, gy)));
+  vec4 src = texture(u_tex, v_uv);
+  // 色チョークのときは面を広めに拾って、色が乗る範囲を増やす
+  float lo   = mix(0.60, 0.16, u_tint);
+  float amt  = mix(0.42, 0.66, u_tint);
+  float body = smoothstep(lo, 1.0, luma(src.rgb)) * src.a * amt;
+  float a = clamp(edge * 1.7 + body, 0.0, 1.0);
+  // チョークのかすれ
+  a *= 0.45 + 0.55 * fbm(v_uv * u_res * 0.05);
+  a *= 0.72 + 0.28 * hash12(v_uv * u_res * 0.9);
+
+  // パステル化：彩度をやや落として白に寄せると、粉っぽいチョークの発色になる
+  vec3 pastel = mix(vec3(luma(src.rgb)), src.rgb, 0.92);
+  pastel = mix(pastel, vec3(1.0), 0.28);
+  // 被写体の外側（＝輪郭線）は白チョークのままにする
+  vec3 col = mix(u_chalk, pastel, u_tint * smoothstep(0.02, 0.45, src.a));
+  col = mix(col, col * 0.86, edge * u_tint * 0.6);
+  fragColor = vec4(col, clamp(a * u_strength, 0.0, 1.0));
+}`;
+
+function fxChalk(src, w, h, opt) {
+  opt = opt || {};
+  return glRun(w, h, (gl, trash) => {
+    const p = GLX.program('chalk', VS_FULL, FS_CHALK);
+    const tex = GLX.texture(src); trash.push(tex);
+    gl.clearColor(0, 0, 0, 0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, w, h);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    GLX.pass(p, {
+      u_tex: { tex }, u_strength: opt.strength === undefined ? 1.0 : opt.strength,
+      u_tint: opt.tint ? 1.0 : 0.0,
+      u_chalk: opt.chalk || [0.93, 0.95, 0.92]
+    }, null);
+    gl.disable(gl.BLEND);
+  });
 }
 
+/* 影用の柔らかい円形グラデーション（全モード共通） */
+let _shadowTex = null;
+function shadowTexture() {
+  if (_shadowTex) return _shadowTex;
+  const S = 256;
+  const c = newCanvas(S, S);
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(S / 2, S / 2, 4, S / 2, S / 2, S / 2);
+  g.addColorStop(0, 'rgba(16,12,8,0.75)');
+  g.addColorStop(0.45, 'rgba(16,12,8,0.40)');
+  g.addColorStop(1, 'rgba(16,12,8,0)');
+  x.fillStyle = g; x.fillRect(0, 0, S, S);
+  _shadowTex = c;
+  return c;
+}
+/* 素材テクスチャ: 木目・金属・紙などの平面用 */
+function surfaceTexture(kind) {
+  const S = 512;
+  const c = newCanvas(S, S);
+  const x = c.getContext('2d');
+  const r = rnd(kind.length * 977 + 13);
+  const pal = {
+    wood: ['#7a5c42', '#95765a', '#5f4632'],
+    pale: ['#cfd3d8', '#e6e9ed', '#b6bcc4'],
+    metal: ['#8e959d', '#aab1b9', '#727981'],
+    carpet: ['#4a1f27', '#5d2a33', '#331419'],
+    stone: ['#9a9791', '#b3b0a9', '#7e7b76']
+  }[kind] || ['#888', '#aaa', '#666'];
+  const g = x.createLinearGradient(0, 0, 0, S);
+  g.addColorStop(0, pal[1]); g.addColorStop(0.5, pal[0]); g.addColorStop(1, pal[2]);
+  x.fillStyle = g; x.fillRect(0, 0, S, S);
+  if (kind === 'wood') {
+    for (let i = 0; i < 240; i++) {
+      x.globalAlpha = 0.05 + r() * 0.1;
+      x.fillStyle = r() > 0.5 ? '#e8d4bd' : '#3a2b1e';
+      x.fillRect(0, r() * S, S, 0.7 + r() * 2.2);
+    }
+  } else if (kind === 'stone') {
+    x.globalAlpha = 0.5; x.strokeStyle = '#6f6c67'; x.lineWidth = 2;
+    for (let i = 0; i <= 4; i++) { x.beginPath(); x.moveTo(0, i * S / 4); x.lineTo(S, i * S / 4); x.stroke(); }
+    for (let i = 0; i <= 4; i++) { x.beginPath(); x.moveTo(i * S / 4, 0); x.lineTo(i * S / 4, S); x.stroke(); }
+  } else if (kind === 'carpet') {
+    for (let i = 0; i < 900; i++) {
+      x.globalAlpha = 0.05 + r() * 0.12;
+      x.fillStyle = r() > 0.5 ? '#8a3f4c' : '#250f13';
+      x.fillRect(r() * S, r() * S, 3 + r() * 8, 3 + r() * 8);
+    }
+  }
+  x.globalAlpha = 1;
+  drawGrain(x, S, S, 0.09, 9, 2);
+  return c;
+}
+
+/* --- 映画館ロビーの質感。画角を絞るぶん、面ごとに作り込んだ絵を用意する --- */
+function lobbyTextures() {
+  const T = {};
+
+  // 壁：暖色の塗り壁に縦の目地とムラ
+  {
+    const S = 512, c = newCanvas(S, S), x = c.getContext('2d');
+    const g = x.createLinearGradient(0, 0, 0, S);
+    g.addColorStop(0, '#55414a'); g.addColorStop(0.55, '#453440'); g.addColorStop(1, '#392b35');
+    x.fillStyle = g; x.fillRect(0, 0, S, S);
+    const r = rnd(311);
+    for (let i = 0; i < 70; i++) {
+      x.globalAlpha = 0.02 + r() * 0.05;
+      x.fillStyle = r() > 0.5 ? '#7b6270' : '#261c24';
+      x.beginPath();
+      x.ellipse(r() * S, r() * S, 40 + r() * 130, 18 + r() * 70, r() * 3, 0, Math.PI * 2);
+      x.fill();
+    }
+    x.globalAlpha = 1;
+    for (let i = 0; i <= 4; i++) {
+      const px = i * S / 4;
+      x.fillStyle = 'rgba(22,15,20,0.5)'; x.fillRect(px - 1.5, 0, 3, S);
+      x.fillStyle = 'rgba(150,128,142,0.16)'; x.fillRect(px + 2, 0, 1.5, S);
+    }
+    drawGrain(x, S, S, 0.10, 3, 2);
+    T.wall = c;
+  }
+
+  // カウンター前面：縦framed の木パネル
+  {
+    const W2 = 1024, H2 = 256, c = newCanvas(W2, H2), x = c.getContext('2d');
+    const g = x.createLinearGradient(0, 0, 0, H2);
+    g.addColorStop(0, '#6b4b34'); g.addColorStop(0.5, '#563a27'); g.addColorStop(1, '#40291b');
+    x.fillStyle = g; x.fillRect(0, 0, W2, H2);
+    const r = rnd(707);
+    for (let i = 0; i < 320; i++) {
+      x.globalAlpha = 0.05 + r() * 0.10;
+      x.fillStyle = r() > 0.5 ? '#c39a6d' : '#2c1c11';
+      x.fillRect(0, r() * H2, W2, 0.6 + r() * 1.8);
+    }
+    x.globalAlpha = 1;
+    // 鏡板（框組み）
+    const panels = 6, pw = W2 / panels;
+    for (let i = 0; i < panels; i++) {
+      const px = i * pw;
+      x.strokeStyle = 'rgba(24,15,9,0.75)'; x.lineWidth = 5;
+      x.strokeRect(px + 16, 22, pw - 32, H2 - 62);
+      x.strokeStyle = 'rgba(196,160,120,0.22)'; x.lineWidth = 2;
+      x.strokeRect(px + 20, 26, pw - 40, H2 - 70);
+    }
+    // 上端の見切りと下端の幅木
+    x.fillStyle = 'rgba(214,180,132,0.30)'; x.fillRect(0, 0, W2, 7);
+    x.fillStyle = 'rgba(18,11,7,0.7)'; x.fillRect(0, H2 - 26, W2, 26);
+    drawGrain(x, W2, H2, 0.08, 9, 2);
+    T.counterFront = c;
+  }
+
+  // カウンター天板：黒御影風
+  {
+    const S = 512, c = newCanvas(S, S), x = c.getContext('2d');
+    x.fillStyle = '#2a2528'; x.fillRect(0, 0, S, S);
+    const r = rnd(4242);
+    for (let i = 0; i < 5200; i++) {
+      x.globalAlpha = 0.10 + r() * 0.45;
+      const t = r();
+      x.fillStyle = t > 0.72 ? '#cfc6bd' : (t > 0.4 ? '#7d7278' : '#161316');
+      const s2 = 0.8 + r() * 2.6;
+      x.fillRect(r() * S, r() * S, s2, s2 * (0.6 + r() * 0.8));
+    }
+    x.globalAlpha = 1;
+    drawGrain(x, S, S, 0.06, 11, 2);
+    T.counterTop = c;
+  }
+
+  // ポップコーンのバケツ：赤白ストライプ
+  {
+    const W2 = 256, H2 = 320, c = newCanvas(W2, H2), x = c.getContext('2d');
+    x.fillStyle = '#f3ece1'; x.fillRect(0, 0, W2, H2);
+    const sw = W2 / 7;
+    x.fillStyle = '#c4262b';
+    for (let i = 0; i < 7; i += 2) x.fillRect(i * sw, 0, sw, H2);
+    x.fillStyle = '#a81d22'; x.fillRect(0, 0, W2, H2 * 0.10);
+    x.fillStyle = 'rgba(20,16,16,0.16)'; x.fillRect(0, H2 * 0.10, W2, 4);
+    x.fillStyle = '#fff8ea';
+    x.font = f(900, H2 * 0.115, FONT.cond);
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    drawTracked(x, 'POPCORN', W2 / 2, H2 * 0.055, 1.5, 'center');
+    x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+    drawGrain(x, W2, H2, 0.07, 5, 2);
+    T.bucket = c;
+  }
+
+  // ポップコーンの山（上面）
+  {
+    const S = 256, c = newCanvas(S, S), x = c.getContext('2d');
+    x.fillStyle = '#e8cf8e'; x.fillRect(0, 0, S, S);
+    const r = rnd(2929);
+    for (let i = 0; i < 260; i++) {
+      const px = r() * S, py = r() * S, rad = 8 + r() * 14;
+      const t = r();
+      x.fillStyle = t > 0.6 ? '#fdf3d6' : (t > 0.28 ? '#f4e2ae' : '#dcc184');
+      x.beginPath();
+      for (let k = 0; k < 5; k++) {
+        const a = k / 5 * Math.PI * 2;
+        x.ellipse(px + Math.cos(a) * rad * 0.5, py + Math.sin(a) * rad * 0.5, rad * 0.62, rad * 0.52, a, 0, Math.PI * 2);
+      }
+      x.fill();
+    }
+    drawGrain(x, S, S, 0.10, 7, 2);
+    T.popcorn = c;
+  }
+
+  // ドリンクカップ
+  {
+    const W2 = 200, H2 = 300, c = newCanvas(W2, H2), x = c.getContext('2d');
+    x.fillStyle = '#f4f5f7'; x.fillRect(0, 0, W2, H2);
+    x.fillStyle = '#2f4e96'; x.fillRect(0, H2 * 0.30, W2, H2 * 0.24);
+    x.fillStyle = '#c4262b'; x.fillRect(0, H2 * 0.54, W2, H2 * 0.05);
+    x.fillStyle = '#fff';
+    x.font = f(900, H2 * 0.11, FONT.cond);
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    drawTracked(x, 'CINEMA', W2 / 2, H2 * 0.42, 1.2, 'center');
+    x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+    x.fillStyle = 'rgba(20,20,26,0.12)'; x.fillRect(0, 0, W2, H2 * 0.06);
+    drawGrain(x, W2, H2, 0.05, 13, 2);
+    T.cup = c;
+  }
+
+  // ポスター下の「上映中」プレート
+  {
+    const W2 = 384, H2 = 96, c = newCanvas(W2, H2), x = c.getContext('2d');
+    x.fillStyle = '#171319'; x.fillRect(0, 0, W2, H2);
+    x.strokeStyle = 'rgba(216,186,124,0.8)'; x.lineWidth = 3;
+    x.strokeRect(6, 6, W2 - 12, H2 - 12);
+    x.fillStyle = '#e6cd93';
+    x.font = f(600, 30, FONT.cond);
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    drawTracked(x, 'NOW SHOWING', W2 / 2, H2 / 2, 5, 'center');
+    x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+    T.plaque = c;
+  }
+
+  // 壁を照らす光だまり
+  {
+    const S = 512, c = newCanvas(S, S), x = c.getContext('2d');
+    const g = x.createRadialGradient(S / 2, S * 0.42, 20, S / 2, S * 0.5, S * 0.5);
+    g.addColorStop(0, 'rgba(255,236,196,0.42)');
+    g.addColorStop(0.5, 'rgba(255,232,188,0.16)');
+    g.addColorStop(1, 'rgba(255,230,185,0)');
+    x.fillStyle = g; x.fillRect(0, 0, S, S);
+    T.glow = c;
+  }
+  return T;
+}
+
+/* =========================================================================
+ * [7] モード定義
+ *   各モードは art() で1枚の絵を作り、render() でそれを日常の風景に置く。
+ * ====================================================================== */
+
+const MODES = [];
+
+/* 同じ絵を色違いに見せる（周囲に並ぶ「別の号・別の本」用） */
+function tintCopy(src, deg, bright) {
+  const c = newCanvas(src.width, src.height);
+  const x = c.getContext('2d');
+  try { x.filter = `hue-rotate(${deg}deg) brightness(${bright === undefined ? 1 : bright})`; } catch (e) { }
+  x.drawImage(src, 0, 0);
+  x.filter = 'none';
+  return c;
+}
+/* 名前のない「その他の紙面」（売店に並ぶ他紙など） */
+function dummyPage(w, h, seed, paper, ink) {
+  const c = newCanvas(w, h);
+  const x = c.getContext('2d');
+  const r = rnd(seed);
+  x.fillStyle = paper; x.fillRect(0, 0, w, h);
+  x.fillStyle = ink;
+  x.fillRect(w * 0.08, h * 0.05, w * 0.84, h * 0.075);
+  x.globalAlpha = 0.7;
+  x.fillRect(w * 0.08, h * 0.15, w * 0.84, h * 0.055);
+  x.globalAlpha = 0.18;
+  x.fillRect(w * 0.08, h * 0.24, w * 0.42, h * 0.30);
+  x.globalAlpha = 0.30;
+  let y = h * 0.24;
+  while (y < h * 0.93) {
+    x.fillRect(w * 0.54, y, w * (0.20 + r() * 0.18), h * 0.012);
+    y += h * 0.028;
+  }
+  y = h * 0.58;
+  while (y < h * 0.93) {
+    x.fillRect(w * 0.08, y, w * (0.20 + r() * 0.20), h * 0.012);
+    y += h * 0.028;
+  }
+  x.globalAlpha = 1;
+  drawGrain(x, w, h, 0.06, seed, 2);
+  return c;
+}
+
+/* -------------------------------------------------------------------------
+ * 7.1 雑誌風 — 書店の平台に平積みされた最新号を、やや俯瞰で
+ * ---------------------------------------------------------------------- */
+MODES.push({
+  id: 'magazine',
+  name: '雑誌風',
+  heavy: true,
+  fields: [
+    { key: 'title', label: 'ロゴタイトル', type: 'text', def: 'OHAYO', placeholder: 'OHAYO' },
+    { key: 'issue', label: '号数', type: 'text', def: 'VOL.42 / MORNING ISSUE', placeholder: 'VOL.42' },
+    { key: 'date', label: '日付', type: 'text', def: '2026 SEPTEMBER', placeholder: '2026 SEPTEMBER' },
+    { key: 'lines', label: '特集見出し', type: 'textarea', rows: 4, def: '今日も\n世界一かわいい\nおはよう', placeholder: '今日も' },
+    { key: 'sub', label: '小コピー', type: 'text', def: 'MORNING PORTRAIT ISSUE', placeholder: 'MORNING PORTRAIT ISSUE' }
+  ],
+
+  art(env) {
+    const W = 800, H = 1130;
+    const c = newCanvas(W, H);
+    const x = c.getContext('2d');
+    const { img, meta, v } = env;
+    const [ah, as] = meta.accentHsl;
+    const accent = hsl(ah, clamp(as * 1.1, 0.55, 0.92), 0.48);
+    const deep = hsl(ah + 6, clamp(as * 0.9, 0.35, 0.8), 0.16);
+
+    const g = x.createLinearGradient(0, 0, W * 0.35, H);
+    g.addColorStop(0, hsl(ah + 12, clamp(as * 0.45, 0.10, 0.4), 0.94));
+    g.addColorStop(0.55, hsl(ah, clamp(as * 0.55, 0.12, 0.45), 0.86));
+    g.addColorStop(1, hsl(ah - 14, clamp(as * 0.6, 0.14, 0.5), 0.76));
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+
+    // 発行情報
+    x.fillStyle = deep; x.textBaseline = 'alphabetic';
+    x.font = f(600, 19, FONT.cond);
+    drawTracked(x, (v.issue || '').toUpperCase(), 40, 60, 2.4, 'left');
+    drawTracked(x, (v.date || '').toUpperCase(), W - 40, 60, 2.4, 'right');
+    x.globalAlpha = 0.5; x.fillRect(40, 74, W - 80, 1.5); x.globalAlpha = 1;
+
+    // 立ち絵 → その前に巨大ロゴ
+    const p = place(env, { x: 60, y: 185, w: W - 120, h: H - 185 },
+      { fit: 'contain', anchorY: 1, anchorX: 0.5 });
+    x.save();
+    x.shadowColor = 'rgba(0,0,0,0.20)'; x.shadowBlur = 26; x.shadowOffsetY = 8;
+    try { x.filter = 'contrast(1.06) saturate(1.10)'; } catch (e) { }
+    x.drawImage(img, p.x, p.y, p.w, p.h);
+    x.restore(); x.filter = 'none';
+
+    const logo = (v.title || 'OHAYO').toUpperCase();
+    const ls = fitSize(x, logo, 400, FONT.logo, W - 56, 300, 40, -0.018);
+    x.font = f(400, ls, FONT.logo);
+    x.save();
+    x.shadowColor = 'rgba(0,0,0,0.30)'; x.shadowBlur = 22; x.shadowOffsetY = 6;
+    x.fillStyle = '#fff';
+    drawTracked(x, logo, W / 2, 96 + ls * 0.76, -ls * 0.018, 'center');
+    x.restore();
+
+    // 特集見出し
+    const raw = String(v.lines || '').split('\n').map(t => t.trim()).filter(Boolean);
+    const half = Math.ceil(raw.length / 2);
+    const line = (t, px, py, size, align, first) => {
+      x.save();
+      x.shadowColor = 'rgba(0,0,0,0.40)'; x.shadowBlur = 14; x.shadowOffsetY = 2;
+      x.font = f(900, size, FONT.sans);
+      x.fillStyle = first ? accent : '#fff';
+      if (first) { x.strokeStyle = '#fff'; x.lineWidth = size * 0.07; x.lineJoin = 'round'; }
+      const w = trackedWidth(x, t, size * 0.01);
+      drawTracked(x, t, px, py, size * 0.01, align, first ? 'both' : undefined);
+      x.restore();
+      x.save();
+      x.globalAlpha = 0.85; x.fillStyle = first ? accent : '#fff';
+      x.fillRect(align === 'right' ? px - w : px, py + size * 0.24, w, Math.max(2, size * 0.055));
+      x.restore();
+    };
+    let y = 415;
+    raw.slice(0, half).slice(0, 3).forEach((t, i) => {
+      const s = fitSize(x, t, 900, FONT.sans, W - 80, i === 0 ? 78 : 53, 18, 0.01);
+      line(t, 40, y, s, 'left', i === 0); y += s * 1.48;
+    });
+    let y2 = 700;
+    raw.slice(half).slice(0, 2).forEach((t) => {
+      const s = fitSize(x, t, 900, FONT.sans, W - 80, 53, 16, 0.01);
+      line(t, W - 40, y2, s, 'right', false); y2 += s * 1.48;
+    });
+
+    // 特集バッジ・バーコード
+    x.save();
+    x.fillStyle = accent;
+    x.beginPath(); x.arc(76, H - 154, 36, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#fff'; x.font = f(900, 21, FONT.sans);
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText('特集', 76, H - 152);
+    x.restore(); x.textBaseline = 'alphabetic';
+
+    drawBarcode(x, W - 168, H - 96, 128, 64, 1234, '4 912345 678904');
+    x.save();
+    x.font = f(600, 13, FONT.cond); x.fillStyle = deep; x.textAlign = 'right';
+    drawTracked(x, String(v.sub || '').toUpperCase(), W - 178, H - 68, 1.4, 'right');
+    x.restore();
+
+    x.save();
+    x.strokeStyle = 'rgba(255,255,255,0.5)'; x.lineWidth = 2;
+    x.strokeRect(16, 16, W - 32, H - 32);
+    x.restore();
+    drawGrain(x, W, H, 0.04, 21, 3);
+    return c;
+  },
+
+  render(ctx, env) {
+    const W = env.W, H = env.H;
+    const art = this.art(env);
+    if (!GLX.available()) { ctx.drawImage(art, (W - H * art.width / art.height) / 2, 0, H * art.width / art.height, H); return; }
+
+    const covers = [GLX.texture(art), GLX.texture(tintCopy(art, 26, 0.98)), GLX.texture(tintCopy(art, -24, 1.02))];
+    const table = GLX.texture(surfaceTexture('pale'), { repeat: true });
+    const shadow = GLX.texture(shadowTexture());
+    const trash = [...covers, table, shadow];
+
+    // 雑誌1冊 = 幅1.10 x 奥行1.55 x 厚み0.032
+    const MW = 1.10, MD = 1.55, MT = 0.032;
+    const r = rnd(20260903);
+    const stacks = [];
+    const PX = 1.26, PZ = 1.74, COLS = 5, ROWS = 5, HC = 2, HR = 0;
+    for (let ci = 0; ci < COLS; ci++) for (let zi = 0; zi < ROWS; zi++) {
+      const hero = (ci === HC && zi === HR);
+      const n = hero ? 9 : 4 + Math.floor(r() * 6);
+      stacks.push({
+        x: (ci - (COLS - 1) / 2) * PX, z: 1.30 - zi * PZ, n, hero,
+        tex: covers[(ci * 2 + zi) % covers.length],
+        jitter: hero ? 0.012 : 0.05, seed: r()
+      });
+    }
+    const hero = stacks[HC * ROWS + HR];
+    const heroTop = MT * hero.n;
+    const fp = [hero.x, heroTop, hero.z];
+    // 書籍より俯瞰を強くしつつ、一冊が画面に収まる距離まで引く
+    const eye = [fp[0] + 1.18, fp[1] + 3.34, fp[2] + 1.84];
+
+    Stage3D.render(ctx, {
+      W, H, clear: [0.16, 0.16, 0.17], ambient: 0.50,
+      light: [0.32, 0.90, 0.40],
+      camera: {
+        eye, at: [fp[0] + 0.02, fp[1] - 0.10, fp[2] + 0.02], fov: 30,
+        focus: Math.hypot(eye[0] - fp[0], eye[1] - fp[1], eye[2] - fp[2]),
+        dofScale: 0.55, blur: 9
+      },
+      draw(api) {
+        api.quad([0, 0, -2.0], [0, 0, 0], [16, 16], { tex: table, uvScale: [6, 6] });
+        if (api.mode === 0) {
+          api.blend(true);
+          for (const st of stacks) {
+            api.quad([st.x, 0.004, st.z + 0.05], [0, 0, 0], [MW * 1.30, MD * 1.30], { tex: shadow, unlit: true });
+          }
+          api.blend(false);
+        }
+        for (const st of stacks) {
+          const rr = rnd(Math.floor(st.seed * 100000) + 7);
+          for (let i = 0; i < st.n; i++) {
+            api.box(
+              [st.x + (rr() - 0.5) * st.jitter, MT * (i + 0.5), st.z + (rr() - 0.5) * st.jitter],
+              [0, (rr() - 0.5) * 5, 0], [MW, MT, MD],
+              { tex: st.tex, face: Stage3D.FACE.TOP, edge: [0.97, 0.96, 0.93] }
+            );
+          }
+        }
+      }
+    });
+    GLX.dispose(trash);
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const lg = ctx.createRadialGradient(W * 0.42, H * 0.08, 20, W * 0.5, H * 0.35, W * 0.85);
+    lg.addColorStop(0, 'rgba(255,246,226,0.20)');
+    lg.addColorStop(1, 'rgba(255,246,226,0)');
+    ctx.fillStyle = lg; ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+    drawVignette(ctx, W, H, 0.42);
+    drawGrain(ctx, W, H, 0.04, 33, 2);
+  }
+});
+
+/* -------------------------------------------------------------------------
+ * 7.2 新聞風 — 駅の売店。菓子より一段上の棚に他紙とまとめて平置き
+ * ---------------------------------------------------------------------- */
+MODES.push({
+  id: 'newspaper',
+  name: '新聞風',
+  heavy: true,
+  fields: [
+    { key: 'paper', label: '題字', type: 'text', def: '朝報', placeholder: '朝報' },
+    { key: 'date', label: '発行日', type: 'text', def: '令和八年九月二日（水）朝刊', placeholder: '令和八年九月二日' },
+    { key: 'head', label: 'メイン見出し', type: 'text', def: '本日も 早起き成功', placeholder: '本日も 早起き成功' },
+    { key: 'subs', label: 'サブ見出し', type: 'textarea', rows: 2, def: '三日連続の快挙\n本人「眠い」', placeholder: '三日連続の快挙' },
+    {
+      key: 'experts', label: '識者コメント', type: 'textarea', rows: 3,
+      def: '朝活大学教授 早起 太郎氏｜えらい。とてもえらい。この調子で明日も起きてほしい。\n睡眠評論家 布団 愛子氏｜正直、二度寝しても誰も責めない。だが今日は起きた。',
+      placeholder: '朝活大学教授 早起 太郎氏｜えらい。'
+    },
+    { key: 'caption', label: 'キャプション', type: 'text', def: '＝午前七時、自室にて（写真）', placeholder: '＝午前七時、自室にて' }
+  ],
+
+  art(env) {
+    const W = 880, H = 1180;
+    const c = newCanvas(W, H);
+    const x = c.getContext('2d');
+    const { img, meta, v } = env;
+    const PAPER = '#f2eee3', INK = '#16161a', RED = '#a41d1d';
+    const M = 34;
+    const hbY = 152, hbH = 158;
+
+    x.fillStyle = PAPER; x.fillRect(0, 0, W, H);
+
+    // 題字
+    x.fillStyle = INK; x.textBaseline = 'alphabetic';
+    const t = v.paper || '朝報';
+    const ts = fitSize(x, t, 900, FONT.serif, 340, 78, 30, 0.06);
+    x.font = f(900, ts, FONT.serif);
+    drawTracked(x, t, W / 2, 96, ts * 0.06, 'center');
+    x.save();
+    x.fillStyle = RED; roundRect(x, M, 42, 88, 40, 5); x.fill();
+    x.fillStyle = PAPER; x.font = f(900, 23, FONT.serif);
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    drawTracked(x, '号外', M + 44, 63, 3, 'center');
+    x.restore(); x.textBaseline = 'alphabetic';
+    x.font = f(400, 15, FONT.serif); x.fillStyle = INK; x.textAlign = 'right';
+    x.fillText(v.date || '', W - M, 70);
+    x.globalAlpha = 0.7; x.fillText('おはようVtuber新聞社', W - M, 92); x.globalAlpha = 1;
+    x.textAlign = 'left';
+    x.fillStyle = INK;
+    x.fillRect(M, 116, W - M * 2, 3);
+    x.fillRect(M, 124, W - M * 2, 1.2);
+
+    // 写真（網点）
+    const px0 = M, py0 = hbY, pw = 406, ph = 600;
+    const scene = newCanvas(pw, ph);
+    const sx = scene.getContext('2d');
+    sx.fillStyle = '#e9e6dd'; sx.fillRect(0, 0, pw, ph);
+    const sp = place(env, { x: 10, y: 16, w: pw - 20, h: ph - 46 },
+      { fit: 'contain', anchorY: 1, anchorX: 0.5 });
+    sx.drawImage(img, sp.x, sp.y, sp.w, sp.h);
+    x.drawImage(fxNewsprint(scene, pw, ph, { dot: 3.6 }) || scene, px0, py0);
+
+    x.save();
+    x.beginPath(); x.rect(0, 0, W, hbY); x.rect(0, hbY + hbH, W, H - hbY - hbH); x.clip();
+    x.strokeStyle = INK; x.lineWidth = 1.5;
+    x.strokeRect(px0 + 0.75, py0 + 0.75, pw - 1.5, ph - 1.5);
+    x.restore();
+
+    x.save();
+    x.fillStyle = 'rgba(20,20,22,0.88)';
+    x.fillRect(px0, py0 + ph - 38, pw, 38);
+    x.fillStyle = PAPER; x.font = f(400, 16, FONT.serif); x.textBaseline = 'middle';
+    x.fillText((wrapText(x, v.caption || '', pw - 24, 0)[0]) || '', px0 + 12, py0 + ph - 19);
+    x.restore(); x.textBaseline = 'alphabetic';
+
+    // 見出し帯
+    x.save();
+    x.fillStyle = 'rgba(242,238,227,0.62)';
+    x.fillRect(M, hbY, W - M * 2, hbH);
+    x.fillStyle = INK;
+    x.fillRect(M, hbY, W - M * 2, 2.5);
+    x.fillRect(M, hbY + hbH - 2.5, W - M * 2, 2.5);
+    x.restore();
+    const hb = fitBlock(x, v.head || '', 900, FONT.serif, W - M * 2 - 30, hbH - 30, 94, 1.16, 0.04);
+    x.font = f(900, hb.size, FONT.serif);
+    let hy = hbY + (hbH - hb.lines.length * hb.size * 1.16) / 2 + hb.size * 0.88;
+    x.save();
+    x.strokeStyle = PAPER; x.lineWidth = hb.size * 0.14; x.lineJoin = 'round';
+    x.fillStyle = INK;
+    for (const ln of hb.lines) { drawTracked(x, ln, W / 2, hy, hb.size * 0.04, 'center', 'both'); hy += hb.size * 1.16; }
+    x.restore();
+
+    // 識者コメント
+    const colX = px0 + pw + 16, colW = 690 - colX;
+    const boxTop = hbY + hbH + 18, boxBottom = py0 + ph;
+    const experts = String(v.experts || '').split('\n').map(s => s.trim()).filter(Boolean).slice(0, 2);
+    const boxH = (boxBottom - boxTop - (experts.length - 1) * 14) / Math.max(experts.length, 1);
+    experts.forEach((linee, i) => {
+      const sep = linee.indexOf('｜') >= 0 ? '｜' : (linee.indexOf('|') >= 0 ? '|' : '：');
+      const idx = linee.indexOf(sep);
+      const who = idx >= 0 ? linee.slice(0, idx).trim() : '識者';
+      const say = idx >= 0 ? linee.slice(idx + 1).trim() : linee;
+      const by = boxTop + i * (boxH + 14);
+      x.save();
+      x.fillStyle = 'rgba(22,22,26,0.05)'; x.fillRect(colX, by, colW, boxH);
+      x.strokeStyle = INK; x.lineWidth = 1.2;
+      x.strokeRect(colX + 0.6, by + 0.6, colW - 1.2, boxH - 1.2);
+      x.fillStyle = INK; x.fillRect(colX, by, colW, 28);
+      x.fillStyle = PAPER; x.font = f(700, 16, FONT.serif); x.textBaseline = 'middle';
+      x.fillText('識　者　の　声', colX + 10, by + 15);
+      x.restore(); x.textBaseline = 'alphabetic';
+      x.fillStyle = INK; x.font = f(700, 17, FONT.serif);
+      let ty = by + 54;
+      for (const l of wrapText(x, who, colW - 20, 0).slice(0, 2)) { x.fillText(l, colX + 10, ty); ty += 21; }
+      x.fillStyle = 'rgba(22,22,26,0.35)'; x.fillRect(colX + 10, ty - 9, colW - 20, 1); ty += 10;
+      const sb = fitBlock(x, '「' + say + '」', 400, FONT.serif, colW - 26, boxH - (ty - by) - 12, 19, 1.5, 0);
+      x.fillStyle = INK; x.font = f(400, sb.size, FONT.serif);
+      for (const l of sb.lines) { x.fillText(l, colX + 10, ty + sb.size * 0.8); ty += sb.size * 1.5; }
+    });
+
+    // 縦書きサブ見出し
+    x.save();
+    x.fillStyle = INK; x.fillRect(700, boxTop, 1.5, boxBottom - boxTop);
+    let vx = W - M - 22;
+    String(v.subs || '').split('\n').map(s => s.trim()).filter(Boolean).slice(0, 2).forEach((s, i) => {
+      const size = i === 0 ? 38 : 28;
+      x.font = f(900, size, FONT.serif);
+      x.fillStyle = i === 0 ? INK : 'rgba(22,22,26,0.82)';
+      vx = drawVerticalBlock(x, s, vx, boxTop + 8, size, 1.06, boxBottom - boxTop - 16, 1.28) - size * 0.5;
+    });
+    x.restore();
+
+    // 下部の段組み
+    const bt = py0 + ph + 20, bh = H - bt - 56;
+    const cols = 3, gap = 18, cw = (W - M * 2 - gap * (cols - 1)) / cols;
+    const rr = rnd(99);
+    for (let ci = 0; ci < cols; ci++) {
+      const cx = M + ci * (cw + gap);
+      x.fillStyle = INK; x.font = f(700, 17, FONT.serif);
+      x.fillText(['きょうの起床', 'おはよう経済', '気象'][ci], cx, bt + 16);
+      x.fillStyle = 'rgba(22,22,26,0.28)'; x.fillRect(cx, bt + 25, cw, 1.2);
+      let yy = bt + 40;
+      while (yy < bt + bh - 6) {
+        x.fillStyle = 'rgba(22,22,26,0.30)';
+        x.fillRect(cx, yy, cw * (0.72 + rr() * 0.28), 6);
+        yy += 15;
+      }
+      if (ci < cols - 1) { x.fillStyle = 'rgba(22,22,26,0.25)'; x.fillRect(cx + cw + gap / 2, bt + 6, 1.2, bh - 12); }
+    }
+    x.fillStyle = INK; x.fillRect(M, H - 44, W - M * 2, 1.2);
+    x.font = f(400, 14, FONT.serif); x.fillStyle = 'rgba(22,22,26,0.72)';
+    x.fillText('※この紙面はフィクションです', M, H - 24);
+    x.textAlign = 'right'; x.fillText('おはようVtuber新聞社', W - M, H - 24); x.textAlign = 'left';
+
+    drawGrain(x, W, H, 0.06, 5, 2);
+    return c;
+  },
+
+  render(ctx, env) {
+    const W = env.W, H = env.H;
+    const art = this.art(env);
+    if (!GLX.available()) { ctx.drawImage(art, (W - H * art.width / art.height) / 2, 0, H * art.width / art.height, H); return; }
+
+    const NW = 2.14, ND = 2.87, NT = 0.013;   // 折らずに平置きした紙面
+    const heroTex = GLX.texture(art);
+    const otherA = GLX.texture(dummyPage(440, 590, 31, '#efe9dc', '#22232a'));
+    const otherB = GLX.texture(dummyPage(440, 590, 77, '#f0ece1', '#2a1f2a'));
+    const shelf = GLX.texture(surfaceTexture('metal'), { repeat: true });
+    const floor = GLX.texture(surfaceTexture('stone'), { repeat: true });
+    const shadow = GLX.texture(shadowTexture());
+    const trash = [heroTex, otherA, otherB, shelf, floor, shadow];
+
+    const SHELF_Y = 0.92, SHELF_T = 0.12;
+    const top = SHELF_Y + SHELF_T / 2;
+    const papers = [
+      { x: 0.00, z: 0.55, n: 9, tex: heroTex, hero: true },
+      { x: -2.30, z: 0.30, n: 7, tex: otherA },
+      { x: 2.30, z: 0.36, n: 8, tex: otherB },
+      { x: -1.16, z: -2.35, n: 6, tex: otherB },
+      { x: 1.16, z: -2.30, n: 7, tex: otherA },
+      { x: -3.45, z: -2.40, n: 5, tex: heroTex },
+      { x: 3.45, z: -2.44, n: 6, tex: otherA }
+    ];
+    const hero = papers[0];
+    const fp = [hero.x, top + NT * hero.n, hero.z];
+    const eye = [fp[0] + 0.92, fp[1] + 4.00, fp[2] + 2.21];
+
+    const snackCols = [[0.86, 0.24, 0.20], [0.95, 0.72, 0.16], [0.22, 0.48, 0.78],
+                       [0.90, 0.45, 0.14], [0.36, 0.62, 0.32], [0.82, 0.30, 0.52]];
+    const rs = rnd(515);
+
+    Stage3D.render(ctx, {
+      W, H, clear: [0.12, 0.13, 0.15], ambient: 0.46,
+      light: [0.25, 0.90, 0.36],
+      camera: {
+        eye, at: [fp[0], fp[1] - 0.02, fp[2] + 0.02], fov: 32,
+        focus: Math.hypot(eye[0] - fp[0], eye[1] - fp[1], eye[2] - fp[2]),
+        dofScale: 0.30, blur: 12
+      },
+      draw(api) {
+        api.quad([0, 0, 0], [0, 0, 0], [24, 24], { tex: floor, uvScale: [7, 7] });
+        // 背面のパネル
+        api.box([0, 1.7, -4.2], [0, 0, 0], [16, 3.6, 0.16], { color: [0.28, 0.30, 0.34] });
+        // 上段の棚板（新聞はここ）
+        api.box([0, SHELF_Y, -0.6], [0, 0, 0], [11, SHELF_T, 5.2], { tex: shelf, face: Stage3D.FACE.TOP, edge: [0.42, 0.45, 0.49] });
+        // 下段：菓子類。新聞はここより一段上に置かれている
+        api.box([0, 0.55, 2.35], [0, 0, 0], [11, 0.12, 1.3],
+          { tex: shelf, face: Stage3D.FACE.TOP, edge: [0.42, 0.45, 0.49] });
+        for (let i = 0; i < 17; i++) {
+          const bx = -3.4 + i * 0.42 + (rs() - 0.5) * 0.06;
+          const bh2 = 0.24 + rs() * 0.16;
+          api.box([bx, 0.61 + bh2 / 2, 2.02 + (rs() - 0.5) * 0.16], [0, (rs() - 0.5) * 18, 0],
+            [0.33, bh2, 0.15], { color: snackCols[i % snackCols.length] });
+        }
+        for (let i = 0; i < 15; i++) {
+          const bx = -3.2 + i * 0.46 + (rs() - 0.5) * 0.08;
+          const bh2 = 0.28 + rs() * 0.16;
+          api.box([bx, 0.61 + bh2 / 2, 2.62 + (rs() - 0.5) * 0.16], [0, (rs() - 0.5) * 20, 0],
+            [0.36, bh2, 0.17], { color: snackCols[(i + 3) % snackCols.length] });
+        }
+        if (api.mode === 0) {
+          api.blend(true);
+          for (const p of papers) {
+            api.quad([p.x, top + 0.004, p.z + 0.05], [0, 0, 0], [NW * 1.16, ND * 1.16], { tex: shadow, unlit: true });
+          }
+          api.blend(false);
+        }
+        for (const p of papers) {
+          const rr = rnd(Math.round(p.x * 100) + p.n * 17 + 3);
+          for (let i = 0; i < p.n; i++) {
+            api.box([p.x + (rr() - 0.5) * (p.hero ? 0.02 : 0.07), top + NT * (i + 0.5), p.z + (rr() - 0.5) * (p.hero ? 0.02 : 0.07)],
+              [0, (rr() - 0.5) * (p.hero ? 2.5 : 6), 0], [NW, NT, ND],
+              { tex: p.tex, face: Stage3D.FACE.TOP, edge: [0.93, 0.91, 0.85] });
+          }
+        }
+      }
+    });
+    GLX.dispose(trash);
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const lg = ctx.createLinearGradient(0, 0, 0, H * 0.55);
+    lg.addColorStop(0, 'rgba(210,228,255,0.16)');
+    lg.addColorStop(1, 'rgba(210,228,255,0)');
+    ctx.fillStyle = lg; ctx.fillRect(0, 0, W, H * 0.55);
+    ctx.restore();
+    drawVignette(ctx, W, H, 0.46);
+    drawGrain(ctx, W, H, 0.045, 5, 2);
+  }
+});
+
+/* -------------------------------------------------------------------------
+ * 7.3 RPGタイトル風 — 店頭のゲームソフトラック、面出しされた一番手前の一本
+ * ---------------------------------------------------------------------- */
+MODES.push({
+  id: 'rpg',
+  name: 'RPGタイトル風',
+  heavy: true,
+  fields: [
+    { key: 'title', label: 'タイトルロゴ', type: 'text', def: 'OHAYO VTUBER', placeholder: 'OHAYO VTUBER' },
+    { key: 'sub', label: 'サブタイトル', type: 'text', def: '～めざめの朝～', placeholder: '～めざめの朝～' },
+    { key: 'press', label: '下部テキスト', type: 'text', def: 'PRESS ANY BUTTON TO WAKE UP', placeholder: 'PRESS ANY BUTTON TO WAKE UP' }
+  ],
+
+  art(env) {
+    const W = 760, H = 1120;
+    const { img, meta, v } = env;
+    const [ah, as] = meta.accentHsl;
+
+    // 箱絵：水彩の背景画
+    const scene = newCanvas(W, H);
+    const s = scene.getContext('2d');
+    const bg = s.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, hsl(ah + 190, 0.36, 0.86));
+    bg.addColorStop(0.45, hsl(ah + 150, 0.30, 0.78));
+    bg.addColorStop(1, hsl(ah + 40, 0.34, 0.62));
+    s.fillStyle = bg; s.fillRect(0, 0, W, H);
+    const glow = s.createRadialGradient(W / 2, H * 0.44, 30, W / 2, H * 0.44, W * 0.62);
+    glow.addColorStop(0, 'rgba(255,246,214,0.52)');
+    glow.addColorStop(0.45, 'rgba(255,238,190,0.18)');
+    glow.addColorStop(1, 'rgba(255,235,180,0)');
+    s.fillStyle = glow; s.fillRect(0, 0, W, H);
+    const p = place(env, { x: W * 0.06, y: H * 0.02, w: W * 0.88, h: H * 0.70 },
+      { fit: 'contain', anchorY: 1, anchorX: 0.5 });
+    s.save();
+    s.globalAlpha = 0.9;
+    try { s.filter = 'saturate(0.95) brightness(1.05)'; } catch (e) { }
+    s.drawImage(img, p.x, p.y, p.w, p.h);
+    s.restore(); s.filter = 'none';
+
+    const c = newCanvas(W, H);
+    const x = c.getContext('2d');
+    const painted = fxWatercolor(scene, { w: 720, h: 1060, radius: 5.6, sharpness: 4.5, soften: 0.45 });
+    x.imageSmoothingQuality = 'high';
+    x.drawImage(painted || scene, 0, 0, W, H);
+    x.fillStyle = 'rgba(238,230,208,0.12)'; x.fillRect(0, 0, W, H);
+
+    // 下端は帯のために少しだけ締める
+    const bot = x.createLinearGradient(0, H, 0, H * 0.76);
+    bot.addColorStop(0, 'rgba(18,20,40,0.72)');
+    bot.addColorStop(1, 'rgba(18,20,40,0)');
+    x.fillStyle = bot; x.fillRect(0, H * 0.76, W, H * 0.24);
+    drawVignette(x, W, H, 0.34);
+
+    // タイトルロゴ（白マット・細身）。パッケージの主役なので中央に大きく置く
+    const title = (v.title || 'OHAYO VTUBER').toUpperCase();
+    const trk = 0.06, LW = 400;
+    const ts = fitSize(x, title, LW, FONT.fantasy, W - 64, 152, 24, trk);
+    const baseY = Math.round(H * 0.54 + ts * 0.34);
+    // ロゴ背後の後光（箱絵から文字を分離する）
+    const halo = x.createRadialGradient(W / 2, baseY - ts * 0.32, ts * 0.2, W / 2, baseY - ts * 0.32, W * 0.78);
+    halo.addColorStop(0, 'rgba(20,18,38,0.66)');
+    halo.addColorStop(0.55, 'rgba(20,18,38,0.30)');
+    halo.addColorStop(1, 'rgba(20,18,38,0)');
+    x.fillStyle = halo; x.fillRect(0, 0, W, H);
+    x.font = f(LW, ts, FONT.fantasy);
+    x.textBaseline = 'alphabetic';
+    x.save();
+    x.shadowColor = 'rgba(18,14,30,0.6)'; x.shadowBlur = 18; x.shadowOffsetY = 2;
+    x.fillStyle = '#f7f5ef';
+    drawTracked(x, title, W / 2, baseY, ts * trk, 'center');
+    x.restore();
+    const tw = Math.min(W - 80, trackedWidth(x, title, ts * trk) + ts * 0.3);
+    const rule = (ry, dia) => {
+      const lg = x.createLinearGradient(W / 2 - tw / 2, 0, W / 2 + tw / 2, 0);
+      lg.addColorStop(0, 'rgba(247,245,239,0)');
+      lg.addColorStop(0.5, 'rgba(247,245,239,0.85)');
+      lg.addColorStop(1, 'rgba(247,245,239,0)');
+      x.fillStyle = lg; x.fillRect(W / 2 - tw / 2, ry, tw, 2);
+      x.save(); x.translate(W / 2, ry + 1); x.rotate(Math.PI / 4);
+      x.fillStyle = '#f7f5ef'; x.fillRect(-dia / 2, -dia / 2, dia, dia); x.restore();
+    };
+    rule(baseY - ts * 0.94 - 24, 11);
+    rule(baseY + 34, 13);
+    if (v.sub) {
+      const ss = fitSize(x, v.sub, 700, FONT.serif, W - 140, 36, 12, 0.12);
+      x.font = f(700, ss, FONT.serif);
+      x.save();
+      x.shadowColor = 'rgba(0,0,0,0.7)'; x.shadowBlur = 10;
+      x.fillStyle = '#f2f0ea';
+      drawTracked(x, v.sub, W / 2, baseY + 76 + ss * 0.8, ss * 0.12, 'center');
+      x.restore();
+    }
+    if (v.press) {
+      const ps = fitSize(x, v.press.toUpperCase(), 500, FONT.cond, W - 150, 19, 9, 0.2);
+      x.font = f(500, ps, FONT.cond);
+      x.save(); x.globalAlpha = 0.88; x.fillStyle = '#f7f5ef';
+      drawTracked(x, v.press.toUpperCase(), W / 2, 1006, ps * 0.2, 'center');
+      x.restore();
+    }
+
+    // パッケージらしい上帯と下段（レーティング・発売元）
+    x.fillStyle = hsl(ah + 200, 0.5, 0.22); x.fillRect(0, 0, W, 52);
+    x.fillStyle = 'rgba(255,255,255,0.9)'; x.font = f(600, 17, FONT.cond);
+    drawTracked(x, 'MORNING SOFT', 22, 34, 2.6, 'left');
+    x.textAlign = 'right';
+    drawTracked(x, 'FOR EVERY MORNING', W - 22, 34, 2.2, 'right');
+    x.textAlign = 'left';
+    x.save();
+    x.strokeStyle = 'rgba(247,245,239,0.85)'; x.lineWidth = 2;
+    x.strokeRect(24, 1042, 50, 50);
+    x.fillStyle = 'rgba(247,245,239,0.9)'; x.font = f(900, 30, FONT.cond);
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText('A', 49, 1069);
+    x.restore(); x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+    x.save();
+    x.globalAlpha = 0.72; x.fillStyle = '#f7f5ef'; x.font = f(400, 13, FONT.cond);
+    x.textAlign = 'right';
+    drawTracked(x, '(C) MORNING SOFT / OHAYO VTUBER PROJECT', W - 24, 1074, 1.1, 'right');
+    x.restore(); x.textAlign = 'left';
+    x.save();
+    x.strokeStyle = 'rgba(255,255,255,0.35)'; x.lineWidth = 2;
+    x.strokeRect(9, 61, W - 18, H - 70);
+    x.restore();
+    drawGrain(x, W, H, 0.03, 3, 4);
+    return c;
+  },
+
+  render(ctx, env) {
+    const W = env.W, H = env.H;
+    const art = this.art(env);
+    if (!GLX.available()) { ctx.drawImage(art, (W - H * art.width / art.height) / 2, 0, H * art.width / art.height, H); return; }
+
+    const CW = 0.58, CH = 0.86, CD = 0.062;
+    const heroTex = GLX.texture(art);
+    const shelf = GLX.texture(surfaceTexture('metal'), { repeat: true });
+    const neigh = [
+      GLX.texture(dummyPage(300, 440, 23, '#3a2c4a', '#c8b6e0')),
+      GLX.texture(dummyPage(300, 440, 59, '#22403c', '#a8ccc4'))
+    ];
+    const trash = [heroTex, shelf, ...neigh];
+    const rr = rnd(4649);
+
+    const heroPos = [0, CH / 2 + 0.005, 0.60];
+    const heroRot = [-8, 12, 0];      // 面を手前へ向けて表示面積を稼ぐ
+    const eye = [0.66, 0.95, 2.20];
+    const at = [0.00, 0.45, 0.58];
+
+    Stage3D.render(ctx, {
+      W, H, clear: [0.07, 0.07, 0.08], ambient: 0.58,
+      light: [0.30, 0.88, 0.55],
+      camera: {
+        eye, at, fov: 34,
+        focus: Math.hypot(eye[0] - heroPos[0], eye[1] - heroPos[1], eye[2] - heroPos[2]),
+        dofScale: 1.45, blur: 9
+      },
+      draw(api) {
+        // 什器（棚板・背板・仕切り）
+        api.quad([0, 0, -0.3], [0, 0, 0], [7, 5], { tex: shelf, uvScale: [4, 4] });
+        api.box([0, 1.1, -1.55], [0, 0, 0], [7, 2.4, 0.1], { color: [0.17, 0.18, 0.21] });
+        api.box([0, 1.36, -0.1], [0, 0, 0], [7, 0.08, 2.8], { color: [0.20, 0.21, 0.24] });
+        for (const dx of [-0.40, 0.40]) {
+          api.box([dx, 0.17, 0.05], [0, 0, 0], [0.012, 0.34, 1.0], { color: [0.22, 0.23, 0.27] });
+        }
+        // 隣の面出し（別タイトル）
+        for (let k = 0; k < 2; k++) {
+          const dx = k === 0 ? -0.82 : 0.84;
+          for (let i = 5; i >= 0; i--) {
+            api.box([dx + (rr() - 0.5) * 0.01, CH / 2 + 0.005, 0.55 - i * 0.075],
+              [-8, 12 + (rr() - 0.5) * 3, 0], [CW, CH, CD],
+              i === 0
+                ? { tex: neigh[k], face: Stage3D.FACE.FRONT, edge: [0.16, 0.17, 0.20] }
+                : { color: [0.18, 0.19, 0.23] });
+          }
+        }
+        // 主役：一番外側の一本＋その後ろに同じソフト
+        for (let i = 7; i >= 0; i--) {
+          api.box([heroPos[0] + (rr() - 0.5) * 0.008, heroPos[1], heroPos[2] - i * 0.075],
+            [heroRot[0], heroRot[1] + (rr() - 0.5) * 2, 0], [CW, CH, CD],
+            i === 0
+              ? { tex: heroTex, face: Stage3D.FACE.FRONT, edge: [0.16, 0.17, 0.20] }
+              : { color: [0.19, 0.20, 0.24] });
+        }
+        // 棚の縁に立てた値札
+        api.box([-0.02, 0.06, 1.08], [-8, 12, 0], [0.22, 0.10, 0.005], { color: [0.90, 0.89, 0.85] });
+      }
+    });
+    GLX.dispose(trash);
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const lg = ctx.createRadialGradient(W * 0.46, H * 0.05, 20, W * 0.5, H * 0.4, W * 0.8);
+    lg.addColorStop(0, 'rgba(255,240,205,0.22)');
+    lg.addColorStop(1, 'rgba(255,240,205,0)');
+    ctx.fillStyle = lg; ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+    drawVignette(ctx, W, H, 0.52);
+    drawGrain(ctx, W, H, 0.04, 7, 2);
+  }
+});
+
+/* -------------------------------------------------------------------------
+ * 7.4 映画ポスター風 — 映画館の廊下、ライトボックスに収まった一幕
+ * ---------------------------------------------------------------------- */
+MODES.push({
+  id: 'poster',
+  name: '映画ポスター風',
+  heavy: true,
+  fields: [
+    { key: 'catch', label: 'キャッチコピー', type: 'text', def: 'その朝、\n世界はまだ眠っていた。', placeholder: 'その朝、世界はまだ眠っていた。' },
+    { key: 'title', label: 'タイトルロゴ', type: 'text', def: 'OHAYO', placeholder: 'OHAYO' },
+    { key: 'release', label: '公開日', type: 'text', def: '毎朝 7:00 全世界同時配信', placeholder: '毎朝 7:00 全世界同時配信' },
+    {
+      key: 'credits', label: 'クレジット', type: 'textarea', rows: 3,
+      def: 'DIRECTED BY MORNING ALARM   STARRING YOU   MUSIC BY BIRDS OUTSIDE\nPRODUCED BY TWO CUPS OF COFFEE   A MORNING PICTURES RELEASE',
+      placeholder: 'DIRECTED BY ...'
+    }
+  ],
+
+  art(env) {
+    const W = 780, H = 1155;
+    const { img, meta, v } = env;
+    const [ah, as] = meta.accentHsl;
+
+    const scene = newCanvas(W, H);
+    const s = scene.getContext('2d');
+    const bg = s.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#1a1a1e');
+    bg.addColorStop(0.42, '#6e6e74');
+    bg.addColorStop(0.72, '#3a3a41');
+    bg.addColorStop(1, '#1c1c22');
+    s.fillStyle = bg; s.fillRect(0, 0, W, H);
+    const spot = s.createRadialGradient(W * 0.5, H * 0.36, 16, W * 0.5, H * 0.46, W * 0.72);
+    spot.addColorStop(0, 'rgba(255,255,255,0.72)');
+    spot.addColorStop(0.55, 'rgba(190,190,196,0.26)');
+    spot.addColorStop(1, 'rgba(0,0,0,0)');
+    s.fillStyle = spot; s.fillRect(0, 0, W, H);
+    const p = place(env, { x: W * 0.08, y: H * 0.06, w: W * 0.84, h: H * 0.86 },
+      { fit: 'contain', anchorY: 1, anchorX: 0.5 });
+    s.save();
+    try { s.filter = 'contrast(1.18) saturate(0.9)'; } catch (e) { }
+    s.drawImage(img, p.x, p.y, p.w, p.h);
+    s.restore(); s.filter = 'none';
+
+    const accRgb = (() => {
+      const q = newCanvas(1, 1).getContext('2d');
+      q.fillStyle = hsl(ah, clamp(as * 1.15, 0.55, 0.95), 0.42);
+      q.fillRect(0, 0, 1, 1);
+      const d = q.getImageData(0, 0, 1, 1).data;
+      return [d[0] / 255, d[1] / 255, d[2] / 255];
+    })();
+
+    const c = newCanvas(W, H);
+    const x = c.getContext('2d');
+    const gek = fxGekiga(scene, {
+      w: 760, h: 1125, levels: 5.0, edge: 0.95, dot: 5.0, grain: 0.07, duotone: 1.0,
+      dark: [0.045, 0.042, 0.055], light: [0.955, 0.945, 0.915], accent: accRgb
+    });
+    x.imageSmoothingQuality = 'high';
+    x.drawImage(gek || scene, 0, 0, W, H);
+
+    const tg = x.createLinearGradient(0, 0, 0, H * 0.32);
+    tg.addColorStop(0, 'rgba(8,8,11,0.68)'); tg.addColorStop(1, 'rgba(8,8,11,0)');
+    x.fillStyle = tg; x.fillRect(0, 0, W, H * 0.32);
+    const bg2 = x.createLinearGradient(0, H, 0, H * 0.58);
+    bg2.addColorStop(0, 'rgba(8,8,11,0.84)');
+    bg2.addColorStop(0.45, 'rgba(8,8,11,0.38)');
+    bg2.addColorStop(1, 'rgba(8,8,11,0)');
+    x.fillStyle = bg2; x.fillRect(0, H * 0.58, W, H * 0.42);
+    drawVignette(x, W, H, 0.30);
+
+    x.textBaseline = 'alphabetic';
+    const cb = fitBlock(x, v.catch || '', 900, FONT.serif, W - 110, 200, 62, 1.36, 0.05);
+    x.font = f(900, cb.size, FONT.serif);
+    x.save();
+    x.shadowColor = 'rgba(0,0,0,0.85)'; x.shadowBlur = 16;
+    x.fillStyle = '#f2efe8';
+    let cy = 92 + cb.size * 0.9;
+    for (const ln of cb.lines) { drawTracked(x, ln, W / 2, cy, cb.size * 0.05, 'center'); cy += cb.size * 1.36; }
+    x.restore();
+
+    const title = (v.title || '').toUpperCase();
+    if (title) {
+      const ts = fitSize(x, title, 900, FONT.poster, W - 110, 128, 30, 0.02);
+      const ty = H - 208;
+      x.font = f(900, ts, FONT.poster);
+      x.save();
+      x.shadowColor = 'rgba(0,0,0,0.9)'; x.shadowBlur = 22; x.shadowOffsetY = 3;
+      const tg2 = x.createLinearGradient(0, ty - ts, 0, ty + ts * 0.1);
+      tg2.addColorStop(0, '#ffffff'); tg2.addColorStop(0.62, '#e8e3d8');
+      tg2.addColorStop(1, hsl(ah, 0.55, 0.62));
+      x.fillStyle = tg2;
+      drawTracked(x, title, W / 2, ty, ts * 0.02, 'center');
+      x.restore();
+      const tw = trackedWidth(x, title, ts * 0.02);
+      const gapw = tw / 2 + 18;
+      if (gapw < W / 2 - 46) {
+        x.save(); x.fillStyle = 'rgba(240,236,226,0.5)';
+        const ry = ty - ts * 0.30;
+        x.fillRect(46, ry, W / 2 - gapw - 46, 1.6);
+        x.fillRect(W / 2 + gapw, ry, W / 2 - gapw - 46, 1.6);
+        x.restore();
+      }
+    }
+    if (v.release) {
+      const rs = fitSize(x, v.release, 700, FONT.serif, W - 160, 28, 12, 0.16);
+      x.font = f(700, rs, FONT.serif);
+      x.save();
+      x.shadowColor = 'rgba(0,0,0,0.8)'; x.shadowBlur = 10;
+      x.fillStyle = hsl(ah, 0.62, 0.70);
+      drawTracked(x, v.release, W / 2, H - 152, rs * 0.16, 'center');
+      x.restore();
+    }
+    x.save();
+    x.fillStyle = 'rgba(232,228,218,0.8)';
+    let ccy = H - 114;
+    for (const ln of String(v.credits || '').split('\n').map(t => t.trim()).filter(Boolean).slice(0, 4)) {
+      const cs = fitSize(x, ln, 400, FONT.cond, W - 90, 15, 7, 0.14);
+      x.font = f(400, cs, FONT.cond);
+      drawTracked(x, ln.toUpperCase(), W / 2, ccy, cs * 0.14, 'center');
+      ccy += cs * 1.8;
+    }
+    x.restore();
+    x.save();
+    x.strokeStyle = 'rgba(236,232,222,0.3)'; x.lineWidth = 1.6;
+    x.strokeRect(16, 16, W - 32, H - 32);
+    x.restore();
+    drawGrain(x, W, H, 0.075, 11, 2);
+    return c;
+  },
+
+  render(ctx, env) {
+    const W = env.W, H = env.H;
+    const art = this.art(env);
+    if (!GLX.available()) { ctx.drawImage(art, (W - H * art.width / art.height) / 2, 0, H * art.width / art.height, H); return; }
+
+    const L = lobbyTextures();
+    const heroTex = GLX.texture(art);
+    const carpet = GLX.texture(surfaceTexture('carpet'), { repeat: true });
+    const texWall = GLX.texture(L.wall, { repeat: true });
+    const texFront = GLX.texture(L.counterFront);
+    const texTop = GLX.texture(L.counterTop, { repeat: true });
+    const texBucket = GLX.texture(L.bucket);
+    const texCorn = GLX.texture(L.popcorn);
+    const texCup = GLX.texture(L.cup);
+    const texPlaque = GLX.texture(L.plaque);
+    const texGlow = GLX.texture(L.glow);
+    const trash = [heroTex, carpet, texWall, texFront, texTop, texBucket,
+                   texCorn, texCup, texPlaque, texGlow];
+
+    // 開場待ちのロビー。カウンター越しに、高い位置のポスターを見上げる
+    const PW = 1.05, PH = 1.55;
+    const posterPos = [0, 2.15, -1.53];
+    const WALL_Z = -1.65;          // 壁の手前面
+    const CTOP = 1.05;             // カウンター天板の高さ
+    const eye = [0.34, 1.15, 1.35];
+    const at = [0, 1.95, -1.52];
+    const rp = rnd(9091);
+    const F = Stage3D.FACE;
+
+    Stage3D.render(ctx, {
+      W, H, clear: [0.16, 0.13, 0.15], ambient: 0.60,
+      light: [0.26, 0.84, 0.62],
+      camera: {
+        eye, at, fov: 43,
+        focus: Math.hypot(eye[0] - posterPos[0], eye[1] - posterPos[1], eye[2] - posterPos[2]),
+        dofScale: 1.15, blur: 11
+      },
+      draw(api) {
+        api.quad([0, 0, 0.4], [0, 0, 0], [14, 14], { tex: carpet, uvScale: [5, 5] });
+
+        // 壁（塗り壁）と、腰の見切り・回り縁
+        api.box([0, 2.3, WALL_Z - 0.11], [0, 0, 0], [12, 4.6, 0.22],
+          { tex: texWall, face: F.FRONT, edge: [0.20, 0.16, 0.19], uvScale: [3, 1.2] });
+        api.box([0, 1.60, WALL_Z + 0.02], [0, 0, 0], [12, 0.075, 0.045], { color: [0.52, 0.42, 0.44] });
+        api.box([0, 1.545, WALL_Z + 0.015], [0, 0, 0], [12, 0.035, 0.035], { color: [0.30, 0.23, 0.26] });
+        api.box([0, 3.12, WALL_Z + 0.03], [0, 0, 0], [12, 0.11, 0.06], { color: [0.46, 0.37, 0.40] });
+        api.box([0, 3.34, -0.5], [0, 0, 0], [12, 0.14, 3.4], { color: [0.15, 0.13, 0.15] });
+        for (const px of [-1.9, 0, 1.9]) {
+          api.box([px, 3.23, -0.6], [0, 0, 0], [1.4, 0.05, 0.30], { color: [1.0, 0.94, 0.80], unlit: true });
+        }
+
+        // ポスターを照らす光だまり（壁の上に重ねる）
+        if (api.mode === 0) {
+          api.blend(true);
+          api.quad([0, 2.20, WALL_Z + 0.005], [90, 0, 0], [3.0, 3.0], { tex: texGlow, unlit: true });
+          api.blend(false);
+        }
+
+        // 壁付け照明
+        for (const px of [-1.02, 1.02]) {
+          api.box([px, 2.32, WALL_Z + 0.05], [0, 0, 0], [0.10, 0.30, 0.09], { color: [0.17, 0.14, 0.15] });
+          api.box([px, 2.32, WALL_Z + 0.10], [0, 0, 0], [0.07, 0.20, 0.03], { color: [1.0, 0.90, 0.70], unlit: true });
+        }
+
+        // カウンター（框組みの前板・黒御影の天板・真鍮の見切り）
+        api.box([0, CTOP / 2, -1.05], [0, 0, 0], [5.6, CTOP, 0.86],
+          { tex: texFront, face: F.FRONT, edge: [0.30, 0.21, 0.14] });
+        api.box([0, CTOP + 0.025, -1.05], [0, 0, 0], [5.8, 0.05, 0.96],
+          { tex: texTop, face: F.TOP, edge: [0.16, 0.14, 0.15], uvScale: [4, 1] });
+        api.box([0, CTOP - 0.01, -0.585], [0, 0, 0], [5.8, 0.022, 0.02], { color: [0.78, 0.62, 0.32] });
+        api.box([0, 0.055, -1.14], [0, 0, 0], [5.4, 0.11, 0.66], { color: [0.14, 0.10, 0.08] });
+
+        // 天板の上：ポップコーンとカップ
+        for (const [px, sc] of [[-1.26, 0.72], [-0.72, 0.60], [0.70, 0.76], [1.28, 0.64]]) {
+          const bz = -1.02 + (rp() - 0.5) * 0.08;
+          const bh = 0.34 * sc, ry = (rp() - 0.5) * 22;
+          api.box([px, CTOP + 0.05 + bh / 2, bz], [0, ry, 0], [0.24 * sc, bh, 0.24 * sc],
+            { tex: texBucket, face: F.FRONT, edge: [0.74, 0.16, 0.17] });
+          api.box([px, CTOP + 0.05 + bh + 0.05 * sc, bz], [0, ry, 0],
+            [0.30 * sc, 0.11 * sc, 0.30 * sc],
+            { tex: texCorn, face: F.TOP, edge: [0.93, 0.84, 0.60] });
+        }
+        for (const px of [-1.85, 1.88]) {
+          api.box([px, CTOP + 0.16, -1.00], [0, (rp() - 0.5) * 20, 0], [0.13, 0.23, 0.13],
+            { tex: texCup, face: F.FRONT, edge: [0.90, 0.90, 0.92] });
+          api.box([px, CTOP + 0.29, -1.00], [0, 0, 0], [0.15, 0.03, 0.15], { color: [0.22, 0.31, 0.56] });
+        }
+        // ナプキン立て
+        api.box([-2.34, CTOP + 0.11, -1.02], [0, 8, 0], [0.24, 0.13, 0.14], { color: [0.55, 0.56, 0.58] });
+
+        // 「NOW SHOWING」プレート
+        api.box([0, 1.26, WALL_Z + 0.03], [0, 0, 0], [0.66, 0.16, 0.03],
+          { tex: texPlaque, face: F.FRONT, edge: [0.12, 0.10, 0.12] });
+
+        // ポスター：外枠 → マット → 紙面
+        api.box([posterPos[0], posterPos[1], posterPos[2] - 0.055], [6, 0, 0],
+          [PW + 0.26, PH + 0.26, 0.05], { color: [0.99, 0.96, 0.88], unlit: true });
+        api.box([posterPos[0], posterPos[1], posterPos[2] - 0.03], [6, 0, 0],
+          [PW + 0.20, PH + 0.20, 0.045], { color: [0.13, 0.11, 0.13] });
+        api.box([posterPos[0], posterPos[1], posterPos[2] - 0.012], [6, 0, 0],
+          [PW + 0.09, PH + 0.09, 0.035], { color: [0.86, 0.83, 0.76] });
+        api.box(posterPos, [6, 0, 0], [PW, PH, 0.03],
+          { tex: heroTex, face: F.FRONT, edge: [0.13, 0.11, 0.13], unlit: true });
+      }
+    });
+    GLX.dispose(trash);
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const lg = ctx.createRadialGradient(W * 0.5, H * 0.30, 40, W * 0.5, H * 0.42, W * 0.78);
+    lg.addColorStop(0, 'rgba(255,236,196,0.20)');
+    lg.addColorStop(1, 'rgba(255,236,196,0)');
+    ctx.fillStyle = lg; ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+    drawVignette(ctx, W, H, 0.34);
+    drawGrain(ctx, W, H, 0.045, 11, 2);
+  }
+});
+
+/* -------------------------------------------------------------------------
+ * 7.5 書籍平積み風 — 書店の平台、敷き詰められた新刊の一冊にピント
+ * ---------------------------------------------------------------------- */
 MODES.push({
   id: 'books',
   name: '書籍平積み風',
-  desc: '立ち絵を表紙にした本が書店に平積みされた構図。WebGL2の透視投影で本物の遠近感と被写界深度を作る。',
   heavy: true,
   fields: [
     { key: 'title', label: '書籍タイトル', type: 'text', def: 'おはようの作法', placeholder: 'おはようの作法' },
     { key: 'author', label: '著者名', type: 'text', def: '朝比奈 ひかり', placeholder: '朝比奈 ひかり' },
     { key: 'obi', label: '帯コピー', type: 'text', def: '全人類、\n起きろ。', placeholder: '全人類、起きろ。' },
-    { key: 'obiSub', label: '帯の煽り文句', type: 'textarea', rows: 3, def: '発売即重版　三度寝派も涙した朝の一冊\n「読むと目が覚める」と話題', placeholder: '発売即重版' }
+    { key: 'obiSub', label: '帯の煽り文句', type: 'textarea', rows: 2, def: '発売即重版　三度寝派も涙した朝の一冊\n「読むと目が覚める」と話題', placeholder: '発売即重版' }
   ],
 
-  /* --- 表紙テクスチャを Canvas2D で焼き込んでから WebGL に渡す --- */
-  makeCover(env, hueShift) {
-    const { img, meta, v } = env;
+  art(env, hueShift) {
     const CW = 704, CH = 1000;
     const c = newCanvas(CW, CH);
     const x = c.getContext('2d');
+    const { img, meta, v } = env;
     const [ah, as] = meta.accentHsl;
-    const h = ah + hueShift;
+    const h = ah + (hueShift || 0);
 
     const g = x.createLinearGradient(0, 0, CW * 0.4, CH);
     g.addColorStop(0, hsl(h + 16, clamp(as * 0.6, 0.18, 0.5), 0.93));
@@ -1929,7 +2564,6 @@ MODES.push({
     g.addColorStop(1, hsl(h - 18, clamp(as * 0.8, 0.25, 0.6), 0.66));
     x.fillStyle = g; x.fillRect(0, 0, CW, CH);
 
-    // 表紙の立ち絵（帯の上端まで）
     const OBI_TOP = CH * 0.70;
     const p = place(env, { x: CW * 0.06, y: CH * 0.05, w: CW * 0.88, h: OBI_TOP - CH * 0.05 + 30 },
       { fit: 'contain', anchorY: 1, anchorX: 0.52 });
@@ -1938,7 +2572,6 @@ MODES.push({
     x.drawImage(img, p.x, p.y, p.w, p.h);
     x.restore();
 
-    // 縦書きタイトル（右上）
     const ink = hsl(h + 200, 0.30, 0.13);
     x.fillStyle = ink;
     const tsize = clamp(CW * 0.115, 40, 84);
@@ -1947,8 +2580,6 @@ MODES.push({
     x.shadowColor = 'rgba(255,255,255,0.75)'; x.shadowBlur = 12;
     drawVerticalBlock(x, v.title || '', CW - 58, 46, tsize, 1.04, OBI_TOP - 90, 1.3);
     x.restore();
-
-    // 著者名（縦書き・小）
     x.font = f(700, tsize * 0.44, FONT.serif);
     x.fillStyle = 'rgba(20,20,26,0.85)';
     x.save();
@@ -1956,28 +2587,19 @@ MODES.push({
     drawVertical(x, v.author || '', 62, 56, tsize * 0.44, 1.08);
     x.restore();
 
-    // --- 帯 ---
     const obiH = CH - OBI_TOP;
-    // 表紙が赤系なら濃紺、それ以外は臙脂。帯は表紙と明確に分離させる
     const hn = ((h % 360) + 360) % 360;
-    const obiHue = (hn < 30 || hn > 330) ? 218 : 354;
-    const obiCol = hsl(obiHue, 0.62, 0.32);
-    x.fillStyle = obiCol;
-    x.fillRect(0, OBI_TOP, CW, obiH);
-    x.fillStyle = 'rgba(255,255,255,0.85)';
-    x.fillRect(0, OBI_TOP, CW, 3);
-    x.fillStyle = 'rgba(0,0,0,0.22)';
-    x.fillRect(0, OBI_TOP + 3, CW, 6);
+    const obiCol = hsl((hn < 30 || hn > 330) ? 218 : 354, 0.62, 0.32);
+    x.fillStyle = obiCol; x.fillRect(0, OBI_TOP, CW, obiH);
+    x.fillStyle = 'rgba(255,255,255,0.85)'; x.fillRect(0, OBI_TOP, CW, 3);
+    x.fillStyle = 'rgba(0,0,0,0.22)'; x.fillRect(0, OBI_TOP + 3, CW, 6);
 
-    // 帯メインコピー
     const ob = fitBlock(x, v.obi || '', 900, FONT.serif, CW - 56, obiH * 0.56, obiH * 0.34, 1.14, 0.03);
-    x.fillStyle = '#fff8e8';
-    x.font = f(900, ob.size, FONT.serif);
+    x.fillStyle = '#fff8e8'; x.font = f(900, ob.size, FONT.serif);
     x.textBaseline = 'alphabetic';
     let oy = OBI_TOP + 34 + ob.size * 0.85;
     for (const ln of ob.lines) { drawTracked(x, ln, CW / 2, oy, ob.size * 0.03, 'center'); oy += ob.size * 1.14; }
 
-    // 帯の煽り文句
     const subs = String(v.obiSub || '').split('\n').map(t => t.trim()).filter(Boolean).slice(0, 3);
     x.fillStyle = 'rgba(255,246,230,0.92)';
     let sy = Math.min(oy + 6, CH - 26 - subs.length * 30);
@@ -1987,208 +2609,73 @@ MODES.push({
       drawTracked(x, ln, CW / 2, sy + ss, ss * 0.02, 'center');
       sy += ss * 1.5;
     }
-    // 帯の左右にアクセント罫
     x.fillStyle = 'rgba(255,255,255,0.5)';
     x.fillRect(26, OBI_TOP + 20, 3, obiH - 40);
     x.fillRect(CW - 29, OBI_TOP + 20, 3, obiH - 40);
-
     drawGrain(x, CW, CH, 0.05, 61, 2);
     return c;
   },
 
-  /* --- 書店の平台テクスチャ --- */
-  makeFloor() {
-    const S = 512;
-    const c = newCanvas(S, S);
-    const x = c.getContext('2d');
-    const g = x.createLinearGradient(0, 0, 0, S);
-    g.addColorStop(0, '#6d5540');
-    g.addColorStop(0.5, '#8a6c50');
-    g.addColorStop(1, '#5e4835');
-    x.fillStyle = g; x.fillRect(0, 0, S, S);
-    const r = rnd(4242);
-    for (let i = 0; i < 220; i++) {
-      x.globalAlpha = 0.04 + r() * 0.09;
-      x.fillStyle = r() > 0.5 ? '#f0dcc4' : '#3a2b1e';
-      const y = r() * S;
-      x.fillRect(0, y, S, 0.7 + r() * 2.2);
-    }
-    x.globalAlpha = 1;
-    drawGrain(x, S, S, 0.10, 9, 2);
-    return c;
-  },
-
-  /* --- 影用の柔らかい円形グラデーション --- */
-  makeShadow() {
-    const S = 256;
-    const c = newCanvas(S, S);
-    const x = c.getContext('2d');
-    const g = x.createRadialGradient(S / 2, S / 2, 4, S / 2, S / 2, S / 2);
-    g.addColorStop(0, 'rgba(20,12,6,0.78)');
-    g.addColorStop(0.45, 'rgba(20,12,6,0.42)');
-    g.addColorStop(1, 'rgba(20,12,6,0)');
-    x.fillStyle = g; x.fillRect(0, 0, S, S);
-    return c;
-  },
-
   render(ctx, env) {
-    const { img, meta, v } = env, W = env.W, H = env.H;
-    const gl = GLX.gl;
-
-    if (!gl) { // WebGL2が無い環境へのフォールバック
-      ctx.fillStyle = '#2b2118'; ctx.fillRect(0, 0, W, H);
-      const cover = this.makeCover(env, 0);
+    const W = env.W, H = env.H;
+    const cover = this.art(env, 0);
+    if (!GLX.available()) {
       const cw = W * 0.62, ch = cw * (cover.height / cover.width);
+      ctx.fillStyle = '#2b2118'; ctx.fillRect(0, 0, W, H);
       ctx.drawImage(cover, (W - cw) / 2, (H - ch) / 2, cw, ch);
       return;
     }
+    const covers = [GLX.texture(cover), GLX.texture(this.art(env, 22)), GLX.texture(this.art(env, -20))];
+    const table = GLX.texture(surfaceTexture('wood'), { repeat: true });
+    const shadow = GLX.texture(shadowTexture());
+    const trash = [...covers, table, shadow];
 
-    /* --- 表紙テクスチャ（色味を少しずつ変えて別の本に見せる） --- */
-    const covers = [
-      this.makeCover(env, 0),
-      this.makeCover(env, 22),
-      this.makeCover(env, -20)
-    ];
-    const floorCv = this.makeFloor();
-    const shadowCv = this.makeShadow();
-
-    GLX.resize(W, H);
-    const trash = [];
-    const prog = GLX.program('book', VS_BOOK, FS_BOOK);
-    const texCovers = covers.map(c => GLX.texture(c));
-    const texFloor = GLX.texture(floorCv, { repeat: true });
-    const texShadow = GLX.texture(shadowCv);
-    trash.push(...texCovers, texFloor, texShadow);
-
-    const HX = 0.55, HY = 0.075, HZ = 0.78;
-    const boxBuf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, boxBuf);
-    gl.bufferData(gl.ARRAY_BUFFER, boxGeometry(HX, HY, HZ), gl.STATIC_DRAW);
-    const planeBuf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, planeBuf);
-    gl.bufferData(gl.ARRAY_BUFFER, planeGeometry(1, 1), gl.STATIC_DRAW);
-
-    /* --- 平積みの山を格子状に敷き詰める --- */
+    const BW = 1.10, BT = 0.15, BD = 1.56;
     const r = rnd(20260902);
     const stacks = [];
-    const addStack = (x, z, n, texIdx, jitter) => {
-      const books = [];
-      for (let i = 0; i < n; i++) {
-        books.push({
-          x: x + (r() - 0.5) * jitter,
-          y: HY + i * (HY * 2 + 0.004),
-          z: z + (r() - 0.5) * jitter,
-          ry: (r() - 0.5) * 5,
-          tex: texCovers[(texIdx + i) % texCovers.length]
-        });
-      }
-      stacks.push({ x, z, n, books });
-      return stacks[stacks.length - 1];
-    };
-    // 本のフットプリント(1.10 x 1.56)にわずかな隙間を足したピッチで並べる
-    const PX = 1.19, PZ = 1.66, COLS = 7, ROWS = 8;
-    const HC = 3, HZ_I = 1;                 // 主役にする一冊（手前から2列目の中央）
-    for (let c = 0; c < COLS; c++) {
-      for (let zi = 0; zi < ROWS; zi++) {
-        const isHero = (c === HC && zi === HZ_I);
-        addStack((c - (COLS - 1) / 2) * PX, 1.45 - zi * PZ,
-          isHero ? 5 : 2 + Math.floor(r() * 3),
-          (c * 2 + zi) % 3, isHero ? 0.015 : 0.05);
-      }
+    const PX = 1.19, PZ = 1.66, COLS = 7, ROWS = 8, HC = 3, HR = 1;
+    for (let ci = 0; ci < COLS; ci++) for (let zi = 0; zi < ROWS; zi++) {
+      const hero = (ci === HC && zi === HR);
+      stacks.push({
+        x: (ci - (COLS - 1) / 2) * PX, z: 1.45 - zi * PZ,
+        n: hero ? 5 : 2 + Math.floor(r() * 3),
+        tex: covers[(ci * 2 + zi) % covers.length],
+        jitter: hero ? 0.015 : 0.05, seed: r(), hero
+      });
     }
-    const hero = stacks[HC * ROWS + HZ_I];
-    const heroTop = HY * 2 * hero.n;
+    const hero = stacks[HC * ROWS + HR];
+    const fp = [hero.x, BT * hero.n, hero.z];
+    const eye = [fp[0] + 2.04, fp[1] + 2.44, fp[2] + 2.64];
 
-    /* --- カメラ: 主役の一冊を右斜め前方から見下ろす --- */
-    const fp = [hero.x, heroTop, hero.z];
-    const eye = [fp[0] + 2.55, fp[1] + 3.05, fp[2] + 3.30];
-    const at = [fp[0] + 0.10, fp[1] - 0.16, fp[2] + 0.05];
-    const view = M4.lookAt(eye, at, [0, 1, 0]);
-    const proj = M4.perspective(30, 1, 0.1, 80);
-    const vp = M4.mul(proj, view);
-    const FOCUS = Math.hypot(eye[0] - fp[0], eye[1] - fp[1], eye[2] - fp[2]);
-
-    const bindGeom = (buf) => {
-      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-      gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 32, 0);
-      gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 32, 12);
-      gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 32, 20);
-    };
-    const drawPart = (model, uniforms, first, count) => {
-      GLX.setUniforms(prog, Object.assign({
-        u_mvp: M4.mul(vp, model), u_model: model, u_view: view,
-        u_light: [0.42, 0.86, 0.52], u_focus: FOCUS, u_dofScale: 0.55,
-        u_alpha: 1.0, u_unlit: 0.0, u_useTex: 0.0, u_color: [1, 1, 1],
-        u_uvScale: [1, 1]
-      }, uniforms));
-      gl.drawArrays(gl.TRIANGLES, first, count);
-    };
-
-    /* --- シーン描画（mode: 0=カラー / 1=CoCマスク） --- */
-    const drawScene = (mode, target) => {
-      gl.bindFramebuffer(gl.FRAMEBUFFER, target ? target.fb : null);
-      gl.viewport(0, 0, W, H);
-      gl.useProgram(prog);
-      gl.enable(gl.DEPTH_TEST);
-      gl.depthFunc(gl.LEQUAL);
-      gl.depthMask(true);
-      gl.disable(gl.BLEND);
-      gl.disable(gl.CULL_FACE);
-      if (mode === 1) gl.clearColor(1, 1, 1, 1);
-      else gl.clearColor(0.09, 0.07, 0.06, 1);
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-      const M = { u_mode: mode };
-
-      // 平台（床）
-      bindGeom(planeBuf);
-      drawPart(M4.trs([0, 0, -2.6], 0, [14, 1, 14]),
-        Object.assign({ u_useTex: 1.0, u_tex: { tex: texFloor }, u_unlit: 0.0, u_uvScale: [7, 7] }, M), 0, 6);
-
-      // 影（アルファブレンド、深度書き込みなし）
-      if (mode === 0) {
-        gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        gl.depthMask(false);
+    Stage3D.render(ctx, {
+      W, H, clear: [0.09, 0.07, 0.06], ambient: 0.38,
+      light: [0.42, 0.86, 0.52],
+      camera: {
+        eye, at: [fp[0] + 0.10, fp[1] - 0.16, fp[2] + 0.05], fov: 30,
+        focus: Math.hypot(eye[0] - fp[0], eye[1] - fp[1], eye[2] - fp[2]),
+        dofScale: 0.55, blur: 8
+      },
+      draw(api) {
+        api.quad([0, 0, -2.6], [0, 0, 0], [14, 14], { tex: table, uvScale: [7, 7] });
+        if (api.mode === 0) {
+          api.blend(true);
+          for (const st of stacks) {
+            api.quad([st.x, 0.004, st.z + 0.05], [0, 0, 0], [BW * 1.22, BD * 1.42], { tex: shadow, unlit: true });
+          }
+          api.blend(false);
+        }
         for (const st of stacks) {
-          drawPart(M4.trs([st.x, 0.004, st.z + 0.05], 0, [1.22, 1, 1.42]),
-            Object.assign({ u_useTex: 1.0, u_tex: { tex: texShadow }, u_unlit: 1.0 }, M), 0, 6);
-        }
-        gl.depthMask(true);
-        gl.disable(gl.BLEND);
-      }
-
-      // 本（上面＝表紙 / 側面＝小口）
-      bindGeom(boxBuf);
-      for (const st of stacks) {
-        for (const b of st.books) {
-          const model = M4.trs([b.x, b.y, b.z], b.ry, [1, 1, 1]);
-          drawPart(model, Object.assign({ u_useTex: 1.0, u_tex: { tex: b.tex } }, M), 0, 6);
-          drawPart(model, Object.assign({ u_useTex: 0.0, u_color: [0.94, 0.92, 0.86] }, M), 6, 30);
+          const rr = rnd(Math.floor(st.seed * 100000) + 5);
+          for (let i = 0; i < st.n; i++) {
+            api.box([st.x + (rr() - 0.5) * st.jitter, BT * (i + 0.5), st.z + (rr() - 0.5) * st.jitter],
+              [0, (rr() - 0.5) * 5, 0], [BW, BT, BD],
+              { tex: st.tex, face: Stage3D.FACE.TOP, edge: [0.94, 0.92, 0.86] });
+          }
         }
       }
-    };
-
-    /* --- 被写界深度: シーン / CoC / ぼかし → 合成 --- */
-    const fColor = GLX.fbo(W, H, true);
-    const fCoc = GLX.fbo(W, H, true);
-    const fA = GLX.fbo(W, H), fB = GLX.fbo(W, H);
-    trash.push(fColor, fCoc, fA, fB);
-
-    drawScene(0, fColor);
-    drawScene(1, fCoc);
-
-    const pBlur = GLX.program('blur', VS_FULL, FS_BLUR);
-    const pDof = GLX.program('dof', VS_FULL, FS_DOF);
-    GLX.pass(pBlur, { u_tex: { tex: fColor.tex }, u_dir: [1, 0], u_radius: 8 }, fA);
-    GLX.pass(pBlur, { u_tex: { tex: fA.tex }, u_dir: [0, 1], u_radius: 8 }, fB);
-    GLX.pass(pDof, { u_sharp: { tex: fColor.tex }, u_blur: { tex: fB.tex }, u_coc: { tex: fCoc.tex } }, null);
-
-    ctx.drawImage(GLX.canvas, 0, 0);
-    gl.deleteBuffer(boxBuf); gl.deleteBuffer(planeBuf);
+    });
     GLX.dispose(trash);
 
-    /* --- 2D仕上げ: 店内照明・周辺減光・粒状感 --- */
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     const lg = ctx.createRadialGradient(W * 0.5, H * 0.16, 20, W * 0.5, H * 0.3, W * 0.8);
@@ -2201,8 +2688,239 @@ MODES.push({
   }
 });
 
+/* -------------------------------------------------------------------------
+ * 7.6 喫茶店の黒板 — 街角の店先、入口の前に置かれたA型看板
+ * ---------------------------------------------------------------------- */
+MODES.push({
+  id: 'chalkboard',
+  name: '喫茶店の黒板',
+  heavy: true,
+  fields: [
+    { key: 'shop', label: '店名', type: 'text', def: 'CAFE OHAYO', placeholder: 'CAFE OHAYO' },
+    { key: 'head', label: '見出し', type: 'text', def: '本日のおすすめ', placeholder: '本日のおすすめ' },
+    {
+      key: 'menu', label: 'メニュー', type: 'textarea', rows: 4,
+      def: 'モーニングセット｜¥680\nおはようブレンド｜¥450\n目覚めのトースト｜¥380',
+      placeholder: 'モーニングセット｜¥680'
+    },
+    { key: 'foot', label: '下部テキスト', type: 'text', def: 'OPEN 7:00 - 11:00', placeholder: 'OPEN 7:00 - 11:00' },
+    { key: 'colored', label: '色チョークで描く', type: 'toggle', def: true }
+  ],
+
+  art(env) {
+    const W = 820, H = 1150;
+    const { img, meta, v } = env;
+    const c = newCanvas(W, H);
+    const x = c.getContext('2d');
+
+    // 黒板の地
+    const g = x.createLinearGradient(0, 0, W * 0.3, H);
+    g.addColorStop(0, '#2a3a33');
+    g.addColorStop(0.5, '#1f2c27');
+    g.addColorStop(1, '#18231f');
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    // 拭き跡
+    const rw = rnd(808);
+    x.save();
+    for (let i = 0; i < 26; i++) {
+      x.globalAlpha = 0.02 + rw() * 0.05;
+      x.fillStyle = '#cfe0d6';
+      const yy = rw() * H, hh = 20 + rw() * 70;
+      x.beginPath();
+      x.ellipse(rw() * W, yy, 160 + rw() * 260, hh, (rw() - 0.5) * 0.4, 0, Math.PI * 2);
+      x.fill();
+    }
+    x.restore();
+    drawVignette(x, W, H, 0.5);
+
+    // ここから白チョーク層。最後にまとめてかすれさせる
+    const ch = newCanvas(W, H);
+    const k = ch.getContext('2d');
+    const CHALK = '#eef3ec';
+    k.strokeStyle = CHALK; k.fillStyle = CHALK;
+    k.textBaseline = 'alphabetic';
+
+    // 外枠（二重罫＋角飾り）
+    k.lineWidth = 3; roundRect(k, 34, 34, W - 68, H - 68, 14); k.stroke();
+    k.lineWidth = 1.4; roundRect(k, 46, 46, W - 92, H - 92, 10); k.stroke();
+    for (const [cx2, cy2] of [[34, 34], [W - 34, 34], [34, H - 34], [W - 34, H - 34]]) {
+      k.save(); k.translate(cx2, cy2); k.rotate(Math.PI / 4);
+      k.fillRect(-6, -6, 12, 12); k.restore();
+    }
+
+    // 店名
+    const shop = (v.shop || '').toUpperCase();
+    const ss = fitSize(k, shop, 700, FONT.fantasy, W - 160, 66, 20, 0.09);
+    k.font = f(700, ss, FONT.fantasy);
+    drawTracked(k, shop, W / 2, 122, ss * 0.09, 'center');
+    k.lineWidth = 2;
+    k.beginPath(); k.moveTo(W / 2 - 170, 146); k.lineTo(W / 2 + 170, 146); k.stroke();
+    k.save(); k.translate(W / 2, 146); k.rotate(Math.PI / 4); k.fillRect(-5, -5, 10, 10); k.restore();
+
+    // チョークで描いた立ち絵（右側）
+    const pw = 400, ph = 600;
+    const sub = newCanvas(pw, ph);
+    const sx = sub.getContext('2d');
+    const sp = place(env, { x: 8, y: 8, w: pw - 16, h: ph - 16 },
+      { fit: 'contain', anchorY: 1, anchorX: 0.5 });
+    sx.drawImage(img, sp.x, sp.y, sp.w, sp.h);
+    const chalked = fxChalk(sub, pw, ph, {
+      strength: v.colored ? 1.15 : 1.25,
+      tint: !!v.colored,
+      chalk: [0.95, 0.97, 0.94]
+    });
+    if (chalked) k.drawImage(chalked, W - pw - 26, 176, pw, ph);
+    else { k.save(); k.globalAlpha = 0.5; k.drawImage(sub, W - pw - 26, 176, pw, ph); k.restore(); }
+
+    // 見出し
+    const head = v.head || '';
+    const hs = fitSize(k, head, 700, FONT.sans, 330, 44, 16, 0.02);
+    k.font = f(700, hs, FONT.sans);
+    drawTracked(k, head, 66, 244, hs * 0.02, 'left');
+    k.lineWidth = 2.5;
+    k.beginPath(); k.moveTo(66, 262); k.lineTo(66 + trackedWidth(k, head, hs * 0.02), 262); k.stroke();
+
+    // メニュー
+    const items = String(v.menu || '').split('\n').map(t => t.trim()).filter(Boolean).slice(0, 5);
+    const rowH = Math.min(78, (H - 420) / Math.max(items.length, 1));
+    let my = 330;
+    for (const it of items) {
+      const sep = it.indexOf('｜') >= 0 ? '｜' : (it.indexOf('|') >= 0 ? '|' : '\t');
+      const i2 = it.indexOf(sep);
+      const name = i2 >= 0 ? it.slice(0, i2).trim() : it;
+      const price = i2 >= 0 ? it.slice(i2 + 1).trim() : '';
+      const ns = fitSize(k, name, 400, FONT.sans, 250, 31, 12, 0.01);
+      k.font = f(400, ns, FONT.sans);
+      drawTracked(k, name, 66, my, ns * 0.01, 'left');
+      const nw = trackedWidth(k, name, ns * 0.01);
+      if (price) {
+        k.font = f(700, 29, FONT.cond);
+        k.textAlign = 'right'; k.fillText(price, 400, my); k.textAlign = 'left';
+        const pw2 = k.measureText(price).width;
+        k.save(); k.globalAlpha = 0.55; k.lineWidth = 1.6;
+        k.setLineDash([2, 7]);
+        k.beginPath(); k.moveTo(66 + nw + 10, my - 8); k.lineTo(400 - pw2 - 10, my - 8); k.stroke();
+        k.restore(); k.setLineDash([]);
+      }
+      my += rowH;
+    }
+
+    // 下部（OPEN表示）
+    const foot = (v.foot || '').toUpperCase();
+    if (foot) {
+      const fs = fitSize(k, foot, 600, FONT.cond, W - 260, 34, 12, 0.16);
+      k.font = f(600, fs, FONT.cond);
+      const fw = trackedWidth(k, foot, fs * 0.16);
+      k.lineWidth = 2.2;
+      roundRect(k, W / 2 - fw / 2 - 26, H - 138, fw + 52, 62, 10); k.stroke();
+      drawTracked(k, foot, W / 2, H - 96, fs * 0.16, 'center');
+    }
+    // 小さな飾り（湯気の立つカップ）
+    k.save();
+    k.translate(88, H - 120); k.lineWidth = 2.4;
+    k.beginPath(); k.moveTo(0, 0); k.lineTo(4, 26); k.lineTo(34, 26); k.lineTo(38, 0); k.closePath(); k.stroke();
+    k.beginPath(); k.arc(44, 10, 9, -Math.PI / 2, Math.PI / 2); k.stroke();
+    k.lineWidth = 2;
+    for (const dx of [8, 19, 30]) {
+      k.beginPath();
+      k.moveTo(dx, -8); k.quadraticCurveTo(dx + 7, -18, dx, -28);
+      k.stroke();
+    }
+    k.restore();
+
+    // チョークのかすれ（層全体を粒で削る）
+    const nz = newCanvas(Math.ceil(W / 2), Math.ceil(H / 2));
+    const ng = nz.getContext('2d');
+    const nid = ng.createImageData(nz.width, nz.height);
+    const rn = rnd(2468);
+    for (let i = 0; i < nz.width * nz.height; i++) {
+      nid.data[i * 4 + 3] = rn() < 0.34 ? Math.floor(rn() * 210) : 0;
+    }
+    ng.putImageData(nid, 0, 0);
+    k.globalCompositeOperation = 'destination-out';
+    k.globalAlpha = 0.55;
+    k.drawImage(nz, 0, 0, W, H);
+    k.globalCompositeOperation = 'source-over';
+    k.globalAlpha = 1;
+
+    x.drawImage(ch, 0, 0);
+    drawGrain(x, W, H, 0.05, 17, 2);
+    return c;
+  },
+
+  render(ctx, env) {
+    const W = env.W, H = env.H;
+    const art = this.art(env);
+    if (!GLX.available()) { ctx.drawImage(art, (W - H * art.width / art.height) / 2, 0, H * art.width / art.height, H); return; }
+
+    const boardTex = GLX.texture(art);
+    const ground = GLX.texture(surfaceTexture('stone'), { repeat: true });
+    const wood = GLX.texture(surfaceTexture('wood'), { repeat: true });
+    const shadow = GLX.texture(shadowTexture());
+    const trash = [boardTex, ground, wood, shadow];
+
+    const BW = 0.66, BH = 0.926, TILT = -10;
+    const boardPos = [0, 0.74, 0];
+    const eye = [0.71, 1.22, 1.33];
+    const at = [-0.02, 0.76, 0.0];
+
+    Stage3D.render(ctx, {
+      W, H, clear: [0.14, 0.13, 0.12], ambient: 0.50,
+      light: [0.45, 0.80, 0.45],
+      camera: {
+        eye, at, fov: 38,
+        focus: Math.hypot(eye[0] - boardPos[0], eye[1] - boardPos[1], eye[2] - boardPos[2]),
+        dofScale: 0.75, blur: 10
+      },
+      draw(api) {
+        api.quad([0, 0, -0.4], [0, 0, 0], [16, 16], { tex: ground, uvScale: [8, 8] });
+        // 店の正面
+        api.box([0, 1.6, -1.78], [0, 0, 0], [7, 3.2, 0.18], { tex: wood, face: Stage3D.FACE.FRONT, edge: [0.35, 0.26, 0.19] });
+        api.box([0, 0.07, -1.48], [0, 0, 0], [7, 0.14, 0.55], { color: [0.62, 0.60, 0.56] });
+        // 窓（店内の灯り）
+        api.box([-1.05, 1.36, -1.66], [0, 0, 0], [1.86, 1.26, 0.05], { color: [0.20, 0.16, 0.13] });
+        api.box([-1.05, 1.36, -1.63], [0, 0, 0], [1.72, 1.12, 0.04], { color: [0.98, 0.86, 0.62], unlit: true });
+        // 扉
+        api.box([1.28, 1.04, -1.64], [0, 0, 0], [1.0, 2.08, 0.08], { color: [0.24, 0.16, 0.11] });
+        api.box([1.28, 1.72, -1.60], [0, 0, 0], [0.72, 0.5, 0.04], { color: [0.95, 0.84, 0.62], unlit: true });
+        // 吊り看板
+        api.box([1.28, 2.42, -1.50], [0, 0, 0], [0.78, 0.28, 0.06], { color: [0.20, 0.15, 0.11] });
+        // 植木
+        api.box([-1.02, 0.19, -0.72], [0, 12, 0], [0.38, 0.38, 0.38], { color: [0.52, 0.30, 0.22] });
+        api.box([-1.02, 0.62, -0.72], [0, 20, 0], [0.46, 0.52, 0.42], { color: [0.24, 0.40, 0.24] });
+
+        if (api.mode === 0) {
+          api.blend(true);
+          api.quad([0, 0.005, -0.06], [0, 0, 0], [1.15, 1.05], { tex: shadow, unlit: true });
+          api.blend(false);
+        }
+        // A型看板：木枠 → 黒板面 → 後脚
+        api.box([0, 0.5, -0.34], [16, 0, 0], [0.09, 1.02, 0.06], { tex: wood, face: Stage3D.FACE.FRONT, edge: [0.42, 0.31, 0.22] });
+        api.box([0, 0.12, -0.18], [0, 0, 0], [0.5, 0.05, 0.05], { color: [0.42, 0.31, 0.22] });
+        api.box(boardPos, [TILT, 0, 0], [BW + 0.10, BH + 0.10, 0.05],
+          { tex: wood, face: Stage3D.FACE.FRONT, edge: [0.42, 0.31, 0.22] });
+        api.box([boardPos[0], boardPos[1], boardPos[2] + 0.032], [TILT, 0, 0], [BW, BH, 0.02],
+          { tex: boardTex, face: Stage3D.FACE.FRONT, edge: [0.10, 0.13, 0.11] });
+      }
+    });
+    GLX.dispose(trash);
+
+    // 朝の斜光
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const lg = ctx.createLinearGradient(W * 0.9, 0, W * 0.1, H * 0.8);
+    lg.addColorStop(0, 'rgba(255,232,178,0.26)');
+    lg.addColorStop(0.55, 'rgba(255,232,178,0.05)');
+    lg.addColorStop(1, 'rgba(255,232,178,0)');
+    ctx.fillStyle = lg; ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+    drawVignette(ctx, W, H, 0.44);
+    drawGrain(ctx, W, H, 0.045, 23, 2);
+  }
+});
+
 /* =========================================================================
- * [7] アプリ本体（状態管理・UI・出力）
+ * [8] アプリ本体（状態管理・UI・出力）
  * ====================================================================== */
 
 const app = (() => {
@@ -2222,7 +2940,7 @@ const app = (() => {
   // 各モードの初期値をセット（未入力でも成立する）
   for (const m of MODES) {
     state.values[m.id] = {};
-    for (const fl of m.fields) state.values[m.id][fl.key] = fl.def || '';
+    for (const fl of m.fields) state.values[m.id][fl.key] = fl.def === undefined ? '' : fl.def;
     state.adjust[m.id] = { scale: 1, dx: 0, dy: 0 };
   }
 
@@ -2267,6 +2985,24 @@ const app = (() => {
     for (const fl of m.fields) {
       const d = document.createElement('div');
       d.className = 'field';
+      if (fl.type === 'toggle') {
+        const tg = document.createElement('label');
+        tg.className = 'toggle';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = 'fld_' + fl.key;
+        cb.checked = !!state.values[m.id][fl.key];
+        cb.addEventListener('change', () => {
+          state.values[m.id][fl.key] = cb.checked;
+          scheduleRender(true);
+        });
+        const txt = document.createElement('span');
+        txt.textContent = fl.label;
+        tg.appendChild(cb); tg.appendChild(txt);
+        d.appendChild(tg);
+        wrap.appendChild(d);
+        continue;
+      }
       const lb = document.createElement('label');
       lb.textContent = fl.label;
       lb.htmlFor = 'fld_' + fl.key;
