@@ -390,6 +390,7 @@ const GLX = (() => {
     return p;
   }
 
+  let aniso;   // EXT_texture_filter_anisotropic（無ければ null）
   function texture(src, opt) {
     opt = opt || {};
     const t = gl.createTexture();
@@ -397,8 +398,20 @@ const GLX = (() => {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, opt.repeat ? gl.REPEAT : gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, opt.repeat ? gl.REPEAT : gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    if (opt.mip === false) {
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      return t;
+    }
+    // 奥の本や床のように大きく縮小される面は、ミップマップが無いと
+    // 点サンプリングになってジャギー・ちらつきが出る
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    if (aniso === undefined) {
+      aniso = gl.getExtension('EXT_texture_filter_anisotropic') || null;
+      if (aniso) aniso.max = gl.getParameter(aniso.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+    }
+    if (aniso) gl.texParameterf(gl.TEXTURE_2D, aniso.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(8, aniso.max));
     return t;
   }
 
@@ -1235,7 +1248,12 @@ const Stage3D = (() => {
     const gl = GLX.gl;
     if (!gl) return false;
     const W = opt.W, H = opt.H;
-    GLX.resize(W, H);
+    // WebGLにはFBO描画へのMSAAが無いので、2倍で描いてから縮小して
+    // ポリゴンの縁と細い文字のジャギーを均す（スーパーサンプリング）
+    const lim = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE), gl.getParameter(gl.MAX_RENDERBUFFER_SIZE));
+    const ss = (Math.max(W, H) * 2 <= lim) ? 2 : 1;
+    const RW = W * ss, RH = H * ss;
+    GLX.resize(RW, RH);
     const trash = [];
     const prog = GLX.program('stage', VS_STAGE, FS_STAGE);
 
@@ -1321,7 +1339,7 @@ const Stage3D = (() => {
     const runPass = (target, m) => {
       mode = m; bound = null;
       gl.bindFramebuffer(gl.FRAMEBUFFER, target.fb);
-      gl.viewport(0, 0, W, H);
+      gl.viewport(0, 0, target.w, target.h);
       gl.useProgram(prog);
       gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL); gl.depthMask(true);
       gl.disable(gl.BLEND); gl.disable(gl.CULL_FACE);
@@ -1332,7 +1350,9 @@ const Stage3D = (() => {
       gl.disable(gl.BLEND); gl.depthMask(true);
     };
 
-    const fC = GLX.fbo(W, H, true), fZ = GLX.fbo(W, H, true), fA = GLX.fbo(W, H), fB = GLX.fbo(W, H);
+    // カラーは等倍以上で、CoCマスクとぼかしは等倍で十分（どちらも滑らかなため）
+    const fC = GLX.fbo(RW, RH, true), fZ = GLX.fbo(W, H, true),
+          fA = GLX.fbo(W, H), fB = GLX.fbo(W, H);
     trash.push(fC, fZ, fA, fB);
     runPass(fC, 0);
     runPass(fZ, 1);
@@ -1344,7 +1364,9 @@ const Stage3D = (() => {
     GLX.pass(pBlur, { u_tex: { tex: fA.tex }, u_dir: [0, 1], u_radius: br }, fB);
     GLX.pass(pDof, { u_sharp: { tex: fC.tex }, u_blur: { tex: fB.tex }, u_coc: { tex: fZ.tex } }, null);
 
-    ctx.drawImage(GLX.canvas, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(GLX.canvas, 0, 0, W, H);
     gl.deleteBuffer(boxBuf); gl.deleteBuffer(planeBuf);
     GLX.dispose(trash);
     return true;
@@ -1533,59 +1555,7 @@ function lobbyTextures() {
     T.counterTop = c;
   }
 
-  // ポップコーンのバケツ：赤白ストライプ
-  {
-    const W2 = 256, H2 = 320, c = newCanvas(W2, H2), x = c.getContext('2d');
-    x.fillStyle = '#f3ece1'; x.fillRect(0, 0, W2, H2);
-    const sw = W2 / 7;
-    x.fillStyle = '#c4262b';
-    for (let i = 0; i < 7; i += 2) x.fillRect(i * sw, 0, sw, H2);
-    x.fillStyle = '#a81d22'; x.fillRect(0, 0, W2, H2 * 0.10);
-    x.fillStyle = 'rgba(20,16,16,0.16)'; x.fillRect(0, H2 * 0.10, W2, 4);
-    x.fillStyle = '#fff8ea';
-    x.font = f(900, H2 * 0.115, FONT.cond);
-    x.textAlign = 'center'; x.textBaseline = 'middle';
-    drawTracked(x, 'POPCORN', W2 / 2, H2 * 0.055, 1.5, 'center');
-    x.textAlign = 'left'; x.textBaseline = 'alphabetic';
-    drawGrain(x, W2, H2, 0.07, 5, 2);
-    T.bucket = c;
-  }
 
-  // ポップコーンの山（上面）
-  {
-    const S = 256, c = newCanvas(S, S), x = c.getContext('2d');
-    x.fillStyle = '#e8cf8e'; x.fillRect(0, 0, S, S);
-    const r = rnd(2929);
-    for (let i = 0; i < 260; i++) {
-      const px = r() * S, py = r() * S, rad = 8 + r() * 14;
-      const t = r();
-      x.fillStyle = t > 0.6 ? '#fdf3d6' : (t > 0.28 ? '#f4e2ae' : '#dcc184');
-      x.beginPath();
-      for (let k = 0; k < 5; k++) {
-        const a = k / 5 * Math.PI * 2;
-        x.ellipse(px + Math.cos(a) * rad * 0.5, py + Math.sin(a) * rad * 0.5, rad * 0.62, rad * 0.52, a, 0, Math.PI * 2);
-      }
-      x.fill();
-    }
-    drawGrain(x, S, S, 0.10, 7, 2);
-    T.popcorn = c;
-  }
-
-  // ドリンクカップ
-  {
-    const W2 = 200, H2 = 300, c = newCanvas(W2, H2), x = c.getContext('2d');
-    x.fillStyle = '#f4f5f7'; x.fillRect(0, 0, W2, H2);
-    x.fillStyle = '#2f4e96'; x.fillRect(0, H2 * 0.30, W2, H2 * 0.24);
-    x.fillStyle = '#c4262b'; x.fillRect(0, H2 * 0.54, W2, H2 * 0.05);
-    x.fillStyle = '#fff';
-    x.font = f(900, H2 * 0.11, FONT.cond);
-    x.textAlign = 'center'; x.textBaseline = 'middle';
-    drawTracked(x, 'CINEMA', W2 / 2, H2 * 0.42, 1.2, 'center');
-    x.textAlign = 'left'; x.textBaseline = 'alphabetic';
-    x.fillStyle = 'rgba(20,20,26,0.12)'; x.fillRect(0, 0, W2, H2 * 0.06);
-    drawGrain(x, W2, H2, 0.05, 13, 2);
-    T.cup = c;
-  }
 
   // ポスター下の「上映中」プレート
   {
@@ -2341,7 +2311,7 @@ MODES.push({
     const c = newCanvas(W, H);
     const x = c.getContext('2d');
     const gek = fxGekiga(scene, {
-      w: 760, h: 1125, levels: 5.0, edge: 0.95, dot: 5.0, grain: 0.07, duotone: 1.0,
+      w: 760, h: 1125, levels: 5.0, edge: 0.95, dot: 3.4, grain: 0.045, duotone: 1.0,
       dark: [0.045, 0.042, 0.055], light: [0.955, 0.945, 0.915], accent: accRgb
     });
     x.imageSmoothingQuality = 'high';
@@ -2413,7 +2383,7 @@ MODES.push({
     x.strokeStyle = 'rgba(236,232,222,0.3)'; x.lineWidth = 1.6;
     x.strokeRect(16, 16, W - 32, H - 32);
     x.restore();
-    drawGrain(x, W, H, 0.075, 11, 2);
+    drawGrain(x, W, H, 0.048, 11, 2);
     return c;
   },
 
@@ -2428,13 +2398,9 @@ MODES.push({
     const texWall = GLX.texture(L.wall, { repeat: true });
     const texFront = GLX.texture(L.counterFront);
     const texTop = GLX.texture(L.counterTop, { repeat: true });
-    const texBucket = GLX.texture(L.bucket);
-    const texCorn = GLX.texture(L.popcorn);
-    const texCup = GLX.texture(L.cup);
     const texPlaque = GLX.texture(L.plaque);
     const texGlow = GLX.texture(L.glow);
-    const trash = [heroTex, carpet, texWall, texFront, texTop, texBucket,
-                   texCorn, texCup, texPlaque, texGlow];
+    const trash = [heroTex, carpet, texWall, texFront, texTop, texPlaque, texGlow];
 
     // 開場待ちのロビー。カウンター越しに、高い位置のポスターを見上げる
     const PW = 1.05, PH = 1.55;
@@ -2443,7 +2409,6 @@ MODES.push({
     const CTOP = 1.05;             // カウンター天板の高さ
     const eye = [0.34, 1.15, 1.35];
     const at = [0, 1.95, -1.52];
-    const rp = rnd(9091);
     const F = Stage3D.FACE;
 
     Stage3D.render(ctx, {
@@ -2488,24 +2453,6 @@ MODES.push({
           { tex: texTop, face: F.TOP, edge: [0.16, 0.14, 0.15], uvScale: [4, 1] });
         api.box([0, CTOP - 0.01, -0.585], [0, 0, 0], [5.8, 0.022, 0.02], { color: [0.78, 0.62, 0.32] });
         api.box([0, 0.055, -1.14], [0, 0, 0], [5.4, 0.11, 0.66], { color: [0.14, 0.10, 0.08] });
-
-        // 天板の上：ポップコーンとカップ
-        for (const [px, sc] of [[-1.26, 0.72], [-0.72, 0.60], [0.70, 0.76], [1.28, 0.64]]) {
-          const bz = -1.02 + (rp() - 0.5) * 0.08;
-          const bh = 0.34 * sc, ry = (rp() - 0.5) * 22;
-          api.box([px, CTOP + 0.05 + bh / 2, bz], [0, ry, 0], [0.24 * sc, bh, 0.24 * sc],
-            { tex: texBucket, face: F.FRONT, edge: [0.74, 0.16, 0.17] });
-          api.box([px, CTOP + 0.05 + bh + 0.05 * sc, bz], [0, ry, 0],
-            [0.30 * sc, 0.11 * sc, 0.30 * sc],
-            { tex: texCorn, face: F.TOP, edge: [0.93, 0.84, 0.60] });
-        }
-        for (const px of [-1.85, 1.88]) {
-          api.box([px, CTOP + 0.16, -1.00], [0, (rp() - 0.5) * 20, 0], [0.13, 0.23, 0.13],
-            { tex: texCup, face: F.FRONT, edge: [0.90, 0.90, 0.92] });
-          api.box([px, CTOP + 0.29, -1.00], [0, 0, 0], [0.15, 0.03, 0.15], { color: [0.22, 0.31, 0.56] });
-        }
-        // ナプキン立て
-        api.box([-2.34, CTOP + 0.11, -1.02], [0, 8, 0], [0.24, 0.13, 0.14], { color: [0.55, 0.56, 0.58] });
 
         // 「NOW SHOWING」プレート
         api.box([0, 1.26, WALL_Z + 0.03], [0, 0, 0], [0.66, 0.16, 0.03],
@@ -2923,6 +2870,9 @@ MODES.push({
  * [8] アプリ本体（状態管理・UI・出力）
  * ====================================================================== */
 
+/* X に投稿する本文。タグも地の文も入れず、配布ページのリンクだけを載せる */
+const SHARE_URL = 'https://ginka1108.github.io/ohav_recommend/';
+
 const app = (() => {
   const cv = $('preview');
   const ctx = cv.getContext('2d');
@@ -3203,10 +3153,7 @@ const app = (() => {
     setTimeout(() => URL.revokeObjectURL(url), 4000);
   }
   function shareText() {
-    const v = state.values[state.modeId];
-    const head = v.title || v.head || v.catch || v.paper || '';
-    const clean = String(head).replace(/\n/g, ' ').trim();
-    return `${clean ? clean + '\n' : ''}#おはようVtuber`;
+    return SHARE_URL;
   }
 
   $('btnSave').onclick = async () => {
